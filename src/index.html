@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Flowstick</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      (function() {
+        const script = document.createElement('script');
+        script.src = process.env.HOT ? 'http://localhost:3000/dist/bundle.js' : '../dist/bundle.js';
+        document.write(script.outerHTML);
+      }());
+    </script>
+  </body>
+</html>
