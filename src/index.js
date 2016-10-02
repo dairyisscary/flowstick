@@ -2,4 +2,7 @@ require('./Stylesheets.elm');
 require('./index.html');
 
 const Elm = require('./Main.elm');
-Elm.Main.fullscreen();
+const app = Elm.Main.fullscreen();
+
+const xpdl = require('./XPDL');
+xpdl(app);

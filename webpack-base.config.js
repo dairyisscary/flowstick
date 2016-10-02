@@ -4,6 +4,7 @@ const $styleSheetModule = /\/src\/Stylesheets\.elm$/;
 
 module.exports = {
   $styleSheetModule,
+  target: 'electron',
   module: {
     loaders: [{
       test: /\.elm$/,
