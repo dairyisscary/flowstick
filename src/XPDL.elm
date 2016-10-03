@@ -1,8 +1,12 @@
-port module XPDL exposing (XPDL, Msg(ReadXPDL), update, subscriptions)
+port module XPDL exposing (XPDL, Msg(ReadXPDL), update, subscriptions, XPDLState)
+
+
+type alias XPDLState =
+    String
 
 
 type alias XPDL =
-    String
+    Result String XPDLState
 
 
 type alias Filename =
@@ -17,7 +21,7 @@ type alias ReadResult =
 
 type Msg
     = ReadXPDL Filename
-    | DecodeXPDL ReadResult
+    | LoadXPDL XPDL
 
 
 port readXPDL : Filename -> Cmd msg
@@ -26,16 +30,40 @@ port readXPDL : Filename -> Cmd msg
 port jsonXPDL : (ReadResult -> msg) -> Sub msg
 
 
+defaultXPDLError : String
+defaultXPDLError =
+    "Error reading XPDL!"
+
+
+decode : XPDLState -> XPDL
+decode x =
+    Ok x
+
+
+decodeXPDL : ReadResult -> Msg
+decodeXPDL readRes =
+    let
+        portRes =
+            if readRes.error /= Nothing then
+                Err (Maybe.withDefault defaultXPDLError readRes.error)
+            else if readRes.result /= Nothing then
+                Ok (Maybe.withDefault "" readRes.result)
+            else
+                Err defaultXPDLError
+    in
+        LoadXPDL (portRes `Result.andThen` decode)
+
+
 update : Msg -> XPDL -> ( XPDL, Cmd a )
 update msg xpdl =
     case msg of
         ReadXPDL fn ->
             ( xpdl, readXPDL fn )
 
-        DecodeXPDL read ->
-            ( Maybe.withDefault "bad read" read.result, Cmd.none )
+        LoadXPDL xpdl ->
+            ( xpdl, Cmd.none )
 
 
 subscriptions : XPDL -> Sub Msg
 subscriptions _ =
-    jsonXPDL DecodeXPDL
+    jsonXPDL decodeXPDL
