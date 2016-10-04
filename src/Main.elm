@@ -40,7 +40,7 @@ getXPDL xpdl =
             str
 
         Ok state ->
-            state
+            state.name ++ " " ++ state.id
 
 
 view : Model -> Html Msg

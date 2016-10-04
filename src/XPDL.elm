@@ -1,12 +1,12 @@
-port module XPDL exposing (XPDL, Msg(ReadXPDL), update, subscriptions, XPDLState)
+port module XPDL exposing (XPDL, Msg(ReadXPDL), update, subscriptions)
 
-
-type alias XPDLState =
-    String
+import Json.Decode exposing (Decoder, decodeString, (:=))
+import Json.Decode.Pipeline exposing (decode, hardcoded, required)
+import XPDL.Package exposing (Package, packageDecoder)
 
 
 type alias XPDL =
-    Result String XPDLState
+    Result String Package
 
 
 type alias Filename =
@@ -35,13 +35,18 @@ defaultXPDLError =
     "Error reading XPDL!"
 
 
-decode : XPDLState -> XPDL
-decode x =
-    Ok x
+decodeXPDL : String -> XPDL
+decodeXPDL json =
+    let
+        decoder : Decoder Package
+        decoder =
+            "xpdl:Package" := packageDecoder json
+    in
+        decodeString decoder json
 
 
-decodeXPDL : ReadResult -> Msg
-decodeXPDL readRes =
+decodeReadResult : ReadResult -> Msg
+decodeReadResult readRes =
     let
         portRes =
             if readRes.error /= Nothing then
@@ -50,8 +55,11 @@ decodeXPDL readRes =
                 Ok (Maybe.withDefault "" readRes.result)
             else
                 Err defaultXPDLError
+
+        loadedXPDL =
+            portRes `Result.andThen` decodeXPDL
     in
-        LoadXPDL (portRes `Result.andThen` decode)
+        LoadXPDL loadedXPDL
 
 
 update : Msg -> XPDL -> ( XPDL, Cmd a )
@@ -66,4 +74,4 @@ update msg xpdl =
 
 subscriptions : XPDL -> Sub Msg
 subscriptions _ =
-    jsonXPDL decodeXPDL
+    jsonXPDL decodeReadResult
