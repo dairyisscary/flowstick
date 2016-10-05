@@ -1,12 +1,15 @@
 module XPDL.Package exposing (Package, packageDecoder)
 
-import Json.Decode exposing (Decoder, string)
+import Json.Decode exposing (Decoder, string, list)
 import Json.Decode.Pipeline exposing (decode, hardcoded, nullable, optional)
+import Dict exposing (empty)
+import XPDL.Pool exposing (Pools, Pool, poolsDecoder)
 
 
 type alias Package =
     { name : String
     , id : String
+    , pools : Pools
     , fullRepr : String
     }
 
@@ -24,8 +27,12 @@ packageAttributesDecoder =
         |> optional "Id" (nullable string) Nothing
 
 
-makePackageFromDecode : Maybe PackageAttributes -> String -> Package
-makePackageFromDecode attrs =
+makePackageFromDecode :
+    Maybe PackageAttributes
+    -> Maybe (List Pools)
+    -> String
+    -> Package
+makePackageFromDecode attrs maybePools =
     let
         emptyDefault : Maybe String -> String
         emptyDefault =
@@ -40,12 +47,19 @@ makePackageFromDecode attrs =
 
         id =
             emptyDefault (chain .id)
+
+        firstPools =
+            List.head (Debug.log "test" (Maybe.withDefault [] maybePools))
+
+        pools =
+            Maybe.withDefault empty firstPools
     in
-        Package name id
+        Package name id pools
 
 
 packageDecoder : String -> Decoder Package
 packageDecoder json =
     decode makePackageFromDecode
         |> optional "$" (nullable packageAttributesDecoder) Nothing
+        |> optional "xpdl:Pools" (nullable (list poolsDecoder)) Nothing
         |> hardcoded json
