@@ -2,8 +2,9 @@ module XPDL.Pool exposing (Pools, Pool, poolsDecoder)
 
 import Json.Decode exposing (Decoder, list, string, (:=))
 import Json.Decode.Pipeline exposing (decode, nullable, optional, required)
-import Dict exposing (Dict, fromList)
+import Dict exposing (Dict, empty, fromList)
 import XPDL.Process exposing (ProcessId)
+import XPDL.Lane exposing (Lanes, lanesDecoder)
 
 
 type alias PoolId =
@@ -18,6 +19,7 @@ type alias Pool =
     { id : PoolId
     , name : String
     , process : ProcessId
+    , lanes : Lanes
     }
 
 
@@ -28,8 +30,8 @@ type alias PoolAttributes =
     }
 
 
-makePoolFromDecode : Maybe PoolAttributes -> Pool
-makePoolFromDecode attrs =
+makePoolFromDecode : Maybe PoolAttributes -> Maybe (List Lanes) -> Pool
+makePoolFromDecode attrs maybeLanes =
     let
         id =
             Maybe.withDefault "" (attrs `Maybe.andThen` (Just << .id))
@@ -39,8 +41,11 @@ makePoolFromDecode attrs =
 
         procid =
             Maybe.withDefault "" (attrs `Maybe.andThen` .process)
+
+        lanes =
+            Maybe.withDefault empty (maybeLanes `Maybe.andThen` List.head)
     in
-        Pool id name procid
+        Pool id name procid lanes
 
 
 poolAttributesDecoder : Decoder PoolAttributes
@@ -55,6 +60,7 @@ poolDecoder : Decoder Pool
 poolDecoder =
     decode makePoolFromDecode
         |> optional "$" (nullable poolAttributesDecoder) Nothing
+        |> optional "xpdl:Lanes" (nullable (list lanesDecoder)) Nothing
 
 
 poolsDecoder : Decoder Pools
