@@ -3,7 +3,7 @@ module XPDL.Lane exposing (Lanes, Lane, lanesDecoder)
 import Dict exposing (Dict, fromList)
 import Json.Decode exposing (Decoder, string, list)
 import Json.Decode.Pipeline exposing (decode, nullable, optional)
-import XPDL.Performer exposing (PerformerId)
+import XPDL.Performer exposing (Performer, performerDecoder)
 
 
 type alias LaneId =
@@ -13,7 +13,7 @@ type alias LaneId =
 type alias Lane =
     { id : LaneId
     , name : String
-    , performers : List PerformerId
+    , performer : Performer
     }
 
 
@@ -39,21 +39,25 @@ laneAttrDecoder =
             |> optional "Id" (nullable string) Nothing
 
 
-makeLaneFromDecode : Maybe LaneAttributes -> Lane
-makeLaneFromDecode maybeAttrs =
-    case maybeAttrs of
-        Just attrs ->
-            -- TODO performers
-            Lane attrs.id attrs.name []
+makeLaneFromDecode : Maybe LaneAttributes -> Maybe (List Performer) -> Lane
+makeLaneFromDecode maybeAttrs maybePerf =
+    let
+        performers =
+            Maybe.withDefault "" (maybePerf `Maybe.andThen` List.head)
+    in
+        case maybeAttrs of
+            Just attrs ->
+                Lane attrs.id attrs.name performers
 
-        _ ->
-            Lane "" "" []
+            _ ->
+                Lane "" "" ""
 
 
 laneDecoder : Decoder Lane
 laneDecoder =
     decode makeLaneFromDecode
         |> optional "$" (nullable laneAttrDecoder) Nothing
+        |> optional "xpdl:Performers" (nullable (list performerDecoder)) Nothing
 
 
 makeLanesFromDecode : Maybe (List Lane) -> Lanes
