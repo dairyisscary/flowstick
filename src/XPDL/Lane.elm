@@ -1,4 +1,4 @@
-module XPDL.Lane exposing (Lanes, Lane, lanesDecoder)
+module XPDL.Lane exposing (Lanes, Lane, LaneId, lanesDecoder)
 
 import Dict exposing (Dict, fromList)
 import Json.Decode exposing (Decoder, string, list)

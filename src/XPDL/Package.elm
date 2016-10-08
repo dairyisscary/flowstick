@@ -2,14 +2,16 @@ module XPDL.Package exposing (Package, packageDecoder)
 
 import Json.Decode exposing (Decoder, string, list)
 import Json.Decode.Pipeline exposing (decode, hardcoded, nullable, optional)
-import Dict exposing (empty)
-import XPDL.Pool exposing (Pools, Pool, poolsDecoder)
+import Dict exposing (Dict, empty)
+import XPDL.Pool exposing (Pools, poolsDecoder)
+import XPDL.Process exposing (Processes, processesDecoder)
 
 
 type alias Package =
     { name : String
     , id : String
     , pools : Pools
+    , processes : Processes
     , fullRepr : String
     }
 
@@ -30,9 +32,10 @@ packageAttributesDecoder =
 makePackageFromDecode :
     Maybe PackageAttributes
     -> Maybe (List Pools)
+    -> Maybe (List Processes)
     -> String
     -> Package
-makePackageFromDecode attrs maybePools =
+makePackageFromDecode attrs maybePools maybeActs =
     let
         emptyDefault : Maybe String -> String
         emptyDefault =
@@ -42,19 +45,23 @@ makePackageFromDecode attrs maybePools =
         chain =
             Maybe.andThen attrs
 
+        defaultedDict : Maybe (List (Dict a b)) -> Dict a b
+        defaultedDict =
+            Maybe.withDefault empty << List.head << Maybe.withDefault []
+
         name =
             emptyDefault (chain .name)
 
         id =
             emptyDefault (chain .id)
 
-        firstPools =
-            List.head (Debug.log "test" (Maybe.withDefault [] maybePools))
-
         pools =
-            Maybe.withDefault empty firstPools
+            defaultedDict maybePools
+
+        procs =
+            defaultedDict maybeActs
     in
-        Package name id pools
+        Package name id pools procs
 
 
 packageDecoder : String -> Decoder Package
@@ -62,4 +69,5 @@ packageDecoder json =
     decode makePackageFromDecode
         |> optional "$" (nullable packageAttributesDecoder) Nothing
         |> optional "xpdl:Pools" (nullable (list poolsDecoder)) Nothing
-        |> hardcoded json
+        |> optional "xpdl:WorkflowProcesses" (nullable (list processesDecoder)) Nothing
+        |> hardcoded ""
