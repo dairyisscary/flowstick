@@ -1,10 +1,10 @@
 module XPDL.Activity exposing (Activities, activitiesDecoder)
 
-import XPDL.Transition exposing (TransitionId)
 import XPDL.Lane exposing (LaneId)
 import Dict exposing (Dict, fromList)
-import Json.Decode exposing (Decoder, list, string)
-import Json.Decode.Pipeline exposing (decode, optional, nullable)
+import Json.Decode exposing (Decoder, list, string, at, object2)
+import Json.Decode.XML exposing (listOfOne, intFromString)
+import Json.Decode.Pipeline exposing (decode, optional, required, nullable)
 
 
 type alias ActivityId =
@@ -15,36 +15,66 @@ type alias Activities =
     Dict ActivityId Activity
 
 
-type alias Activity =
-    { id :
-        ActivityId
-        --, x : Int
-        --, y : Int
-        --, lane : LaneId
-        --, to : Maybe TransitionId
-        --, from : Maybe TransitionId
+type alias ActivityGraphicsInfo =
+    { lane : LaneId
+    , x : Int
+    , y : Int
     }
 
 
-activityAttributesDecoder : Decoder { id : Maybe String }
-activityAttributesDecoder =
-    decode (\ms -> { id = ms })
-        |> optional "Id" (nullable string) Nothing
+type alias Activity =
+    { id : ActivityId
+    , name : Maybe String
+    , graphicsInfo : ActivityGraphicsInfo
+    }
 
 
-makeActivityFromDecode : Maybe { id : Maybe String } -> Activity
-makeActivityFromDecode maybeAttrs =
+makeGraphicsInfoFromDecode : ( LaneId, { x : Int, y : Int } ) -> ActivityGraphicsInfo
+makeGraphicsInfoFromDecode ( lane, { x, y } ) =
+    { lane = lane, x = x, y = y }
+
+
+activityGraphicsDecoder : Decoder ActivityGraphicsInfo
+activityGraphicsDecoder =
     let
-        id =
-            Maybe.withDefault "" (maybeAttrs `Maybe.andThen` .id)
+        attrsDecoder =
+            decode identity
+                |> required "LaneId" string
+
+        cordsDecoder =
+            object2 (\x y -> { x = x, y = y })
+                (at [ "$", "XCoordinate" ] intFromString)
+                (at [ "$", "YCoordinate" ] intFromString)
+
+        singleDecoder =
+            decode (,)
+                |> required "$" attrsDecoder
+                |> required "xpdl:Coordinates" (listOfOne cordsDecoder)
     in
-        Activity id
+        decode makeGraphicsInfoFromDecode
+            |> required "xpdl:NodeGraphicsInfo" (listOfOne singleDecoder)
+
+
+activityAttributesDecoder : Decoder { id : String, name : Maybe String }
+activityAttributesDecoder =
+    decode (\id mn -> { id = id, name = mn })
+        |> required "Id" string
+        |> optional "Name" (nullable string) Nothing
+
+
+makeActivityFromDecode :
+    { id : String, name : Maybe String }
+    -> ActivityGraphicsInfo
+    -> Activity
+makeActivityFromDecode attrs =
+    Activity attrs.id attrs.name
 
 
 activityDecoder : Decoder Activity
 activityDecoder =
     decode makeActivityFromDecode
-        |> optional "$" (nullable activityAttributesDecoder) Nothing
+        |> required "$" activityAttributesDecoder
+        |> required "xpdl:NodeGraphicsInfos" (listOfOne activityGraphicsDecoder)
 
 
 makeActivitesFromDecode : Maybe (List Activity) -> Activities
