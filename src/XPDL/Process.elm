@@ -1,8 +1,8 @@
 module XPDL.Process exposing (Processes, Process, ProcessId, processesDecoder)
 
-import Dict exposing (Dict, fromList, empty)
 import Json.Decode exposing (Decoder, list, string)
-import Json.Decode.Pipeline exposing (decode, optional, nullable)
+import Json.Decode.Pipeline exposing (decode, optional, nullable, required)
+import Json.Decode.XML exposing (listOfOne)
 import XPDL.Activity exposing (Activities, activitiesDecoder)
 
 
@@ -13,63 +13,41 @@ type alias ProcessId =
 type alias Process =
     { id : ProcessId
     , name : String
-    , acts : Activities
+    , activites : Activities
     }
 
 
 type alias Processes =
-    Dict ProcessId Process
+    List Process
 
 
 processAttributesDecoder : Decoder { id : String, name : String }
 processAttributesDecoder =
-    let
-        def =
-            Maybe.withDefault ""
-    in
-        decode (\mi mn -> { id = def mi, name = def mn })
-            |> optional "Id" (nullable string) Nothing
-            |> optional "Name" (nullable string) Nothing
+    decode (\id name -> { id = id, name = name })
+        |> required "Id" string
+        |> optional "Name" string ""
 
 
 makeProcessFromDecode :
-    Maybe { id : String, name : String }
-    -> Maybe (List Activities)
+    { id : String, name : String }
+    -> Maybe Activities
     -> Process
-makeProcessFromDecode maybeAttrs maybeActs =
+makeProcessFromDecode attrs maybeActs =
     let
-        defaultedDict =
-            Maybe.withDefault empty << List.head << Maybe.withDefault []
-
-        name =
-            Maybe.withDefault "" (maybeAttrs `Maybe.andThen` (\x -> Just x.name))
-
-        id =
-            Maybe.withDefault "" (maybeAttrs `Maybe.andThen` (\x -> Just x.id))
-
         acts =
-            defaultedDict maybeActs
+            Maybe.withDefault [] maybeActs
     in
-        Process id name acts
+        Process attrs.id attrs.name acts
 
 
 processDecoder : Decoder Process
 processDecoder =
     decode makeProcessFromDecode
-        |> optional "$" (nullable processAttributesDecoder) Nothing
-        |> optional "xpdl:Activities" (nullable (list activitiesDecoder)) Nothing
-
-
-makeProcessesFromDecode : Maybe (List Process) -> Processes
-makeProcessesFromDecode maybeProcs =
-    let
-        defaultDict =
-            fromList << List.map (\p -> ( p.id, p )) << Maybe.withDefault []
-    in
-        defaultDict maybeProcs
+        |> required "$" processAttributesDecoder
+        |> optional "xpdl:Activities" (nullable (listOfOne activitiesDecoder)) Nothing
 
 
 processesDecoder : Decoder Processes
 processesDecoder =
-    decode makeProcessesFromDecode
-        |> optional "xpdl:WorkflowProcess" (nullable (list processDecoder)) Nothing
+    decode identity
+        |> optional "xpdl:WorkflowProcess" (list processDecoder) []

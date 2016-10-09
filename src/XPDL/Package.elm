@@ -1,7 +1,8 @@
 module XPDL.Package exposing (Package, packageDecoder)
 
 import Json.Decode exposing (Decoder, string, list)
-import Json.Decode.Pipeline exposing (decode, hardcoded, nullable, optional)
+import Json.Decode.Pipeline exposing (decode, hardcoded, nullable, optional, required)
+import Json.Decode.XML exposing (listOfOne)
 import Dict exposing (Dict, empty)
 import XPDL.Pool exposing (Pools, poolsDecoder)
 import XPDL.Process exposing (Processes, processesDecoder)
@@ -32,10 +33,10 @@ packageAttributesDecoder =
 makePackageFromDecode :
     Maybe PackageAttributes
     -> Maybe (List Pools)
-    -> Maybe (List Processes)
+    -> Processes
     -> String
     -> Package
-makePackageFromDecode attrs maybePools maybeActs =
+makePackageFromDecode attrs maybePools =
     let
         emptyDefault : Maybe String -> String
         emptyDefault =
@@ -57,11 +58,8 @@ makePackageFromDecode attrs maybePools maybeActs =
 
         pools =
             defaultedDict maybePools
-
-        procs =
-            defaultedDict maybeActs
     in
-        Package name id pools procs
+        Package name id pools
 
 
 packageDecoder : String -> Decoder Package
@@ -69,5 +67,5 @@ packageDecoder json =
     decode makePackageFromDecode
         |> optional "$" (nullable packageAttributesDecoder) Nothing
         |> optional "xpdl:Pools" (nullable (list poolsDecoder)) Nothing
-        |> optional "xpdl:WorkflowProcesses" (nullable (list processesDecoder)) Nothing
+        |> required "xpdl:WorkflowProcesses" (listOfOne processesDecoder)
         |> hardcoded ""
