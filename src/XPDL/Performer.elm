@@ -8,12 +8,12 @@ type alias Performer =
     String
 
 
-makePerformer : Maybe (List String) -> Performer
-makePerformer maybePerfList =
-    Maybe.withDefault "" (maybePerfList `Maybe.andThen` List.head)
+makePerformerFromDecode : List Performer -> Performer
+makePerformerFromDecode =
+    Maybe.withDefault "" << List.head
 
 
 performerDecoder : Decoder Performer
 performerDecoder =
-    decode makePerformer
-        |> optional "xpdl:Performer" (nullable (list string)) Nothing
+    decode makePerformerFromDecode
+        |> optional "xpdl:Performer" (list string) []
