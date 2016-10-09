@@ -1,7 +1,6 @@
 module XPDL.Activity exposing (Activities, activitiesDecoder)
 
 import XPDL.Lane exposing (LaneId)
-import Dict exposing (Dict, fromList)
 import Json.Decode exposing (Decoder, list, string, at, object2)
 import Json.Decode.XML exposing (listOfOne, intFromString)
 import Json.Decode.Pipeline exposing (decode, optional, required, nullable)
@@ -12,7 +11,7 @@ type alias ActivityId =
 
 
 type alias Activities =
-    Dict ActivityId Activity
+    List Activity
 
 
 type alias ActivityGraphicsInfo =
@@ -77,16 +76,7 @@ activityDecoder =
         |> required "xpdl:NodeGraphicsInfos" (listOfOne activityGraphicsDecoder)
 
 
-makeActivitesFromDecode : Maybe (List Activity) -> Activities
-makeActivitesFromDecode maybeActs =
-    let
-        listActs =
-            Maybe.withDefault [] maybeActs
-    in
-        fromList (List.map (\a -> ( a.id, a )) listActs)
-
-
 activitiesDecoder : Decoder Activities
 activitiesDecoder =
-    decode makeActivitesFromDecode
-        |> optional "xpdl:Activity" (nullable (list activityDecoder)) Nothing
+    decode identity
+        |> optional "xpdl:Activity" (list activityDecoder) []
