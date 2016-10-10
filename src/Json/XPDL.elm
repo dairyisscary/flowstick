@@ -1,8 +1,7 @@
-port module XPDL exposing (XPDL, Msg(ReadXPDL), update, subscriptions)
+port module Json.XPDL exposing (XPDL, Msg(ReadXPDL), update, subscriptions)
 
 import Json.Decode exposing (Decoder, decodeString, (:=))
-import Json.Decode.Pipeline exposing (decode, hardcoded, required)
-import XPDL.Package exposing (Package, packageDecoder)
+import Json.XPDL.Package exposing (Package, packageDecoder)
 
 
 type alias XPDL =

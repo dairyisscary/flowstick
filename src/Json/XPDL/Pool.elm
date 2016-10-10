@@ -1,10 +1,10 @@
-module XPDL.Pool exposing (Pools, Pool, poolsDecoder)
+module Json.XPDL.Pool exposing (Pools, Pool, poolsDecoder)
 
 import Json.Decode exposing (Decoder, list, string, (:=))
 import Json.Decode.Pipeline exposing (decode, nullable, optional, required)
 import Json.Decode.XML exposing (listOfOne)
-import XPDL.Process exposing (ProcessId)
-import XPDL.Lane exposing (Lanes, lanesDecoder)
+import Json.XPDL.Process exposing (ProcessId)
+import Json.XPDL.Lane exposing (Lanes, lanesDecoder)
 
 
 type alias PoolId =

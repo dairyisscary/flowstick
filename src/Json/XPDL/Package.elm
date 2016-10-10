@@ -1,10 +1,10 @@
-module XPDL.Package exposing (Package, packageDecoder)
+module Json.XPDL.Package exposing (Package, packageDecoder)
 
 import Json.Decode exposing (Decoder, string, list)
 import Json.Decode.Pipeline exposing (decode, hardcoded, nullable, optional, required)
 import Json.Decode.XML exposing (listOfOne)
-import XPDL.Pool exposing (Pools, poolsDecoder)
-import XPDL.Process exposing (Processes, processesDecoder)
+import Json.XPDL.Pool exposing (Pools, poolsDecoder)
+import Json.XPDL.Process exposing (Processes, processesDecoder)
 
 
 type alias Package =

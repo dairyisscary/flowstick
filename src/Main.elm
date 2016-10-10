@@ -4,7 +4,7 @@ import Html exposing (Html, text, div, button, input)
 import Html.Attributes exposing (value)
 import Html.Events exposing (onClick, onInput)
 import Html.App
-import XPDL
+import Json.XPDL as XPDL
 
 
 type alias Model =

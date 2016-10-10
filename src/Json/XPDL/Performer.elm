@@ -1,4 +1,4 @@
-module XPDL.Performer exposing (Performer, performerDecoder)
+module Json.XPDL.Performer exposing (Performer, performerDecoder)
 
 import Json.Decode exposing (Decoder, string, list)
 import Json.Decode.Pipeline exposing (decode, nullable, optional)

@@ -4,7 +4,7 @@ require('rxjs/add/operator/switchMap');
 
 function read(filename) {
   return Observable.create(observer => {
-    const worker = fork('./src/XPDL/read-worker.js');
+    const worker = fork('./src/Json/XPDL/read-worker.js');
     worker.send(filename);
     worker.once('message', msg => {
       observer.next(msg);
