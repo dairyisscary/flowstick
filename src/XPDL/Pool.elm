@@ -2,7 +2,7 @@ module XPDL.Pool exposing (Pools, Pool, poolsDecoder)
 
 import Json.Decode exposing (Decoder, list, string, (:=))
 import Json.Decode.Pipeline exposing (decode, nullable, optional, required)
-import Dict exposing (Dict, empty, fromList)
+import Json.Decode.XML exposing (listOfOne)
 import XPDL.Process exposing (ProcessId)
 import XPDL.Lane exposing (Lanes, lanesDecoder)
 
@@ -12,7 +12,7 @@ type alias PoolId =
 
 
 type alias Pools =
-    Dict PoolId Pool
+    List Pool
 
 
 type alias Pool =
@@ -30,22 +30,16 @@ type alias PoolAttributes =
     }
 
 
-makePoolFromDecode : Maybe PoolAttributes -> Maybe (List Lanes) -> Pool
-makePoolFromDecode attrs maybeLanes =
+makePoolFromDecode : PoolAttributes -> Lanes -> Pool
+makePoolFromDecode attrs =
     let
-        id =
-            Maybe.withDefault "" (attrs `Maybe.andThen` (Just << .id))
-
         name =
-            Maybe.withDefault "" (attrs `Maybe.andThen` .name)
+            Maybe.withDefault "" attrs.name
 
         procid =
-            Maybe.withDefault "" (attrs `Maybe.andThen` .process)
-
-        lanes =
-            Maybe.withDefault empty (maybeLanes `Maybe.andThen` List.head)
+            Maybe.withDefault "" attrs.process
     in
-        Pool id name procid lanes
+        Pool attrs.id name procid
 
 
 poolAttributesDecoder : Decoder PoolAttributes
@@ -59,24 +53,11 @@ poolAttributesDecoder =
 poolDecoder : Decoder Pool
 poolDecoder =
     decode makePoolFromDecode
-        |> optional "$" (nullable poolAttributesDecoder) Nothing
-        |> optional "xpdl:Lanes" (nullable (list lanesDecoder)) Nothing
+        |> required "$" poolAttributesDecoder
+        |> optional "xpdl:Lanes" (listOfOne lanesDecoder) []
 
 
 poolsDecoder : Decoder Pools
 poolsDecoder =
-    let
-        pools : Maybe (List Pool) -> List Pool
-        pools maybePools =
-            Maybe.withDefault [] maybePools
-
-        makePoolsDict : List Pool -> List ( PoolId, Pool )
-        makePoolsDict pools =
-            List.map (\p -> ( p.id, p )) pools
-
-        makePoolsFromDecode : Maybe (List Pool) -> Pools
-        makePoolsFromDecode =
-            fromList << makePoolsDict << pools
-    in
-        decode makePoolsFromDecode
-            |> optional "xpdl:Pool" (nullable (list poolDecoder)) Nothing
+    decode identity
+        |> optional "xpdl:Pool" (list poolDecoder) []

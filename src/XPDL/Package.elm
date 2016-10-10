@@ -3,7 +3,6 @@ module XPDL.Package exposing (Package, packageDecoder)
 import Json.Decode exposing (Decoder, string, list)
 import Json.Decode.Pipeline exposing (decode, hardcoded, nullable, optional, required)
 import Json.Decode.XML exposing (listOfOne)
-import Dict exposing (Dict, empty)
 import XPDL.Pool exposing (Pools, poolsDecoder)
 import XPDL.Process exposing (Processes, processesDecoder)
 
@@ -19,7 +18,7 @@ type alias Package =
 
 type alias PackageAttributes =
     { name : Maybe String
-    , id : Maybe String
+    , id : String
     }
 
 
@@ -27,45 +26,27 @@ packageAttributesDecoder : Decoder PackageAttributes
 packageAttributesDecoder =
     decode PackageAttributes
         |> optional "Name" (nullable string) Nothing
-        |> optional "Id" (nullable string) Nothing
+        |> required "Id" string
 
 
 makePackageFromDecode :
-    Maybe PackageAttributes
-    -> Maybe (List Pools)
+    PackageAttributes
+    -> Pools
     -> Processes
     -> String
     -> Package
-makePackageFromDecode attrs maybePools =
+makePackageFromDecode attrs =
     let
-        emptyDefault : Maybe String -> String
-        emptyDefault =
-            Maybe.withDefault ""
-
-        chain : (PackageAttributes -> Maybe b) -> Maybe b
-        chain =
-            Maybe.andThen attrs
-
-        defaultedDict : Maybe (List (Dict a b)) -> Dict a b
-        defaultedDict =
-            Maybe.withDefault empty << List.head << Maybe.withDefault []
-
         name =
-            emptyDefault (chain .name)
-
-        id =
-            emptyDefault (chain .id)
-
-        pools =
-            defaultedDict maybePools
+            Maybe.withDefault "" attrs.name
     in
-        Package name id pools
+        Package name attrs.id
 
 
 packageDecoder : String -> Decoder Package
 packageDecoder json =
     decode makePackageFromDecode
-        |> optional "$" (nullable packageAttributesDecoder) Nothing
-        |> optional "xpdl:Pools" (nullable (list poolsDecoder)) Nothing
+        |> required "$" packageAttributesDecoder
+        |> required "xpdl:Pools" (listOfOne poolsDecoder)
         |> required "xpdl:WorkflowProcesses" (listOfOne processesDecoder)
-        |> hardcoded ""
+        |> hardcoded json
