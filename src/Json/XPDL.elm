@@ -1,4 +1,4 @@
-port module Json.XPDL exposing (XPDL, Msg(ReadXPDL), update, subscriptions)
+port module Json.XPDL exposing (XPDL, Msg(ReadXPDL), handleMessage, subscriptions)
 
 import Json.Decode exposing (Decoder, decodeString, (:=))
 import Json.XPDL.Package exposing (Package, packageDecoder)
@@ -61,16 +61,16 @@ decodeReadResult readRes =
         LoadXPDL loadedXPDL
 
 
-update : Msg -> XPDL -> ( XPDL, Cmd a )
-update msg xpdl =
+handleMessage : Msg -> ( Maybe XPDL, Cmd a )
+handleMessage msg =
     case msg of
         ReadXPDL fn ->
-            ( xpdl, readXPDL fn )
+            ( Nothing, readXPDL fn )
 
         LoadXPDL xpdl ->
-            ( xpdl, Cmd.none )
+            ( Just xpdl, Cmd.none )
 
 
-subscriptions : XPDL -> Sub Msg
-subscriptions _ =
+subscriptions : Sub Msg
+subscriptions =
     jsonXPDL decodeReadResult

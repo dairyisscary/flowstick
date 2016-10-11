@@ -1,13 +1,10 @@
-module Json.XPDL.Process exposing (Processes, Process, ProcessId, processesDecoder)
+module Json.XPDL.Process exposing (Processes, Process, processesDecoder)
 
 import Json.Decode exposing (Decoder, list, string)
 import Json.Decode.Pipeline exposing (decode, optional, nullable, required)
 import Json.Decode.XML exposing (listOfOne)
 import Json.XPDL.Activity exposing (Activities, activitiesDecoder)
-
-
-type alias ProcessId =
-    String
+import XPDL.Process exposing (ProcessId)
 
 
 type alias Process =
