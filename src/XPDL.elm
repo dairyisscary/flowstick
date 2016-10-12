@@ -1,11 +1,12 @@
-module XPDL exposing (XPDL, Msg, initialXPDL, update, subscriptions, readFile)
+module XPDL exposing (XPDL(..), XPDLState, Msg, initialXPDL, update, subscriptions, readFile)
 
-import XPDL.Process exposing (Processes)
+import XPDL.Process exposing (Processes, ProcessId, processesFromJson)
 import Json.XPDL as JX
 
 
 type alias XPDLState =
     { processes : Processes
+    , entries : List ProcessId
     }
 
 
@@ -33,8 +34,10 @@ convertJsonToState : JX.XPDL -> XPDL
 convertJsonToState jxpdl =
     case jxpdl of
         Ok package ->
-            -- TODO
-            ErrorLoad package.fullRepr
+            Loaded
+                { processes = processesFromJson package
+                , entries = List.map (.id) package.processes
+                }
 
         Err str ->
             ErrorLoad str
