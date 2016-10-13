@@ -26,14 +26,40 @@ createDict pluckFunc func =
     fromList << List.map (\item -> ( pluckFunc item, func item ))
 
 
-processFromJson : XProc.Process -> Process
-processFromJson xproc =
-    { id = xproc.id
-    , name = xproc.name
-    , lanes = []
-    }
+findInList : (a -> Bool) -> List a -> Maybe a
+findInList pred list =
+    case list of
+        [] ->
+            Nothing
+
+        x :: xs ->
+            if pred x then
+                Just x
+            else
+                findInList pred xs
+
+
+processFromJson : Package -> XProc.Process -> Process
+processFromJson package xproc =
+    let
+        procId =
+            xproc.id
+
+        maybePools =
+            findInList (\p -> p.process == procId) package.pools
+
+        maybeLanes =
+            maybePools `Maybe.andThen` (Just << .lanes)
+
+        lanes =
+            maybeLanes `Maybe.andThen` (Just << List.map .id)
+    in
+        { id = procId
+        , name = xproc.name
+        , lanes = Maybe.withDefault [] lanes
+        }
 
 
 processesFromJson : Package -> Processes
 processesFromJson package =
-    createDict (.id) processFromJson package.processes
+    createDict (.id) (processFromJson package) package.processes

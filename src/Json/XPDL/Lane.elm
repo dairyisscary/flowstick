@@ -1,10 +1,14 @@
-module Json.XPDL.Lane exposing (Lanes, lanesDecoder)
+module Json.XPDL.Lane exposing (Lanes, LaneId, lanesDecoder)
 
-import XPDL.Lane exposing (LaneId, Lane, Performer)
+import XPDL.Lane exposing (Lane, Performer)
 import Json.Decode exposing (Decoder, string, list)
 import Json.Decode.Pipeline exposing (decode, nullable, optional, required)
 import Json.Decode.XML exposing (listOfOne)
 import Json.XPDL.Performer exposing (performerDecoder)
+
+
+type alias LaneId =
+    String
 
 
 type alias LaneAttributes =
