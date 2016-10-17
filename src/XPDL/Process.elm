@@ -1,7 +1,8 @@
 module XPDL.Process exposing (Processes, ProcessId, processesFromJson)
 
-import Dict exposing (..)
+import Dict exposing (Dict)
 import XPDL.Lane exposing (Lanes, LaneId)
+import XPDL.Extra exposing (createDict, find)
 import Json.XPDL.Package exposing (Package)
 import Json.XPDL.Process as XProc
 
@@ -21,24 +22,6 @@ type alias Processes =
     Dict ProcessId Process
 
 
-createDict : (a -> comparable) -> (a -> b) -> List a -> Dict comparable b
-createDict pluckFunc func =
-    fromList << List.map (\item -> ( pluckFunc item, func item ))
-
-
-findInList : (a -> Bool) -> List a -> Maybe a
-findInList pred list =
-    case list of
-        [] ->
-            Nothing
-
-        x :: xs ->
-            if pred x then
-                Just x
-            else
-                findInList pred xs
-
-
 processFromJson : Package -> XProc.Process -> Process
 processFromJson package xproc =
     let
@@ -46,7 +29,7 @@ processFromJson package xproc =
             xproc.id
 
         maybePools =
-            findInList (\p -> p.process == procId) package.pools
+            find (\p -> p.process == procId) package.pools
 
         maybeLanes =
             maybePools `Maybe.andThen` (Just << .lanes)
