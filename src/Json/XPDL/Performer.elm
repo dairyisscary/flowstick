@@ -1,8 +1,11 @@
-module Json.XPDL.Performer exposing (performerDecoder)
+module Json.XPDL.Performer exposing (performerDecoder, Performer)
 
 import Json.Decode exposing (Decoder, string, list)
 import Json.Decode.Pipeline exposing (decode, nullable, optional)
-import XPDL.Lane exposing (Performer)
+
+
+type alias Performer =
+    String
 
 
 makePerformerFromDecode : List Performer -> Performer

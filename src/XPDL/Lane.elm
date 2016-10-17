@@ -1,6 +1,10 @@
-module XPDL.Lane exposing (Lanes, Lane, LaneId, Performer)
+module XPDL.Lane exposing (Lanes, Lane, LaneId, Performer, lanesFromJson)
 
 import Dict exposing (..)
+import Json.XPDL.Package exposing (Package)
+import Json.XPDL.Pool exposing (Pools)
+import XPDL.Extra exposing (createDict)
+import XPDL.Extra exposing (createDict)
 
 
 type alias Performer =
@@ -20,3 +24,8 @@ type alias Lane =
 
 type alias Lanes =
     Dict LaneId Lane
+
+
+lanesFromJson : Package -> Lanes
+lanesFromJson package =
+    createDict (.id) identity (List.concatMap (.lanes) package.pools)
