@@ -1,4 +1,4 @@
-module XPDL.Process exposing (Processes, ProcessId, processesFromJson)
+module XPDL.Process exposing (Processes, Process, ProcessId, processesFromJson)
 
 import Dict exposing (Dict)
 import XPDL.Lane exposing (Lanes, LaneId)

@@ -1,33 +1,55 @@
 module Visualizer.View exposing (visualizer)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import XPDL exposing (..)
+import XPDL.Lane exposing (Lanes)
+import XPDL.Process exposing (Process)
+import Dict exposing (get)
 import State exposing (Msg)
 
 
-getRepr : XPDL -> String
-getRepr x =
-    case x of
-        ErrorLoad a ->
-            a
+lanesHtml : Lanes -> Maybe Process -> Html State.Msg
+lanesHtml allLanes currentProcess =
+    let
+        lanesForCurrentProcess =
+            currentProcess
+                |> Maybe.map (.lanes)
+                |> Maybe.withDefault []
 
-        _ ->
-            "error"
+        laneNameFromId laneId =
+            get laneId allLanes
+                |> Maybe.map (.name)
+                |> Maybe.withDefault ""
+
+        rowHtml laneId =
+            div [ class "lane" ] [ text (laneNameFromId laneId) ]
+    in
+        div [ class "lanes" ]
+            (List.map rowHtml lanesForCurrentProcess)
 
 
-loadedVisualizer : XPDLState -> Html State.Msg
+loadedVisualizer : XPDLState -> List (Html State.Msg)
 loadedVisualizer state =
-    div [] [ text (toString state) ]
+    let
+        currentProcess =
+            state.currentProcess `Maybe.andThen` (\id -> get id state.processes)
+    in
+        [ lanesHtml state.lanes currentProcess ]
 
 
 visualizer : XPDL -> Html State.Msg
 visualizer xpdl =
-    case xpdl of
-        ErrorLoad err ->
-            div [] [ text ("Error! " ++ err) ]
+    let
+        wrapper =
+            div [ class "visualizer" ]
+    in
+        case xpdl of
+            ErrorLoad err ->
+                wrapper [ text ("Error! " ++ err) ]
 
-        NotLoaded ->
-            div [] [ text "Nothing yet!" ]
+            NotLoaded ->
+                wrapper [ text "Nothing yet!" ]
 
-        Loaded state ->
-            loadedVisualizer state
+            Loaded state ->
+                wrapper (loadedVisualizer state)

@@ -9,6 +9,7 @@ type alias XPDLState =
     { processes : Processes
     , entries : List ProcessId
     , lanes : Lanes
+    , currentProcess : Maybe ProcessId
     }
 
 
@@ -40,6 +41,7 @@ convertJsonToState jxpdl =
                 { processes = processesFromJson package
                 , entries = List.map (.id) package.processes
                 , lanes = lanesFromJson package
+                , currentProcess = Nothing
                 }
 
         Err str ->
