@@ -7,6 +7,14 @@ import XPDL.Lane exposing (Lanes)
 import XPDL.Process exposing (Process)
 import Dict exposing (get)
 import State exposing (Msg)
+import Html.CssHelpers exposing (Namespace, withNamespace)
+import Visualizer.Styles exposing (Class(..), namespaceId)
+import Styles.Namespace exposing (FlowstickNamespace)
+
+
+ns : FlowstickNamespace Class id State.Msg
+ns =
+    withNamespace namespaceId
 
 
 lanesHtml : Lanes -> Maybe Process -> Html State.Msg
@@ -23,9 +31,18 @@ lanesHtml allLanes currentProcess =
                 |> Maybe.withDefault ""
 
         rowHtml laneId =
-            div [ class "lane" ] [ text (laneNameFromId laneId) ]
+            let
+                laneName =
+                    laneNameFromId laneId
+            in
+                div
+                    [ ns.classList
+                        [ ( SystemLane, laneName == "system" )
+                        ]
+                    ]
+                    [ span [] [ text laneName ] ]
     in
-        div [ class "lanes" ]
+        div [ ns.class [ Lanes ] ]
             (List.map rowHtml lanesForCurrentProcess)
 
 
@@ -42,7 +59,7 @@ visualizer : XPDL -> Html State.Msg
 visualizer xpdl =
     let
         wrapper =
-            div [ class "visualizer" ]
+            div [ ns.class [ Visualizer ] ]
     in
         case xpdl of
             ErrorLoad err ->
