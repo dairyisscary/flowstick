@@ -4,6 +4,7 @@ import Css exposing (Stylesheet)
 import Css.File exposing (..)
 import Html exposing (div)
 import Html.App as Html
+import Styles.Reset
 import Styles.Main
 
 
@@ -12,7 +13,9 @@ port files : CssFileStructure -> Cmd msg
 
 allStyleSheets : List Stylesheet
 allStyleSheets =
-    [ Styles.Main.css ]
+    [ Styles.Reset.css
+    , Styles.Main.css
+    ]
 
 
 cssFiles : CssFileStructure
