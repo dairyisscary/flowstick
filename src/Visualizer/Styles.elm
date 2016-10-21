@@ -3,6 +3,7 @@ module Visualizer.Styles exposing (Class(..), css, namespaceId)
 import Css exposing (..)
 import Css.Elements exposing (..)
 import Css.Namespace exposing (..)
+import Styles.Constants exposing (..)
 import Styles.Namespace exposing (Namespace(Visualizer))
 
 
@@ -20,10 +21,19 @@ namespaceId =
 css : Stylesheet
 css =
     (stylesheet << namespace namespaceId)
-        [ (.) SystemLane
+        [ (.) Visualizer
+            [ overflow auto
+            , position relative
+            ]
+        , (.) SystemLane
             [ fontStyle italic ]
         , (.) Lanes
             [ children
-                [ div [ height (px 200) ] ]
+                [ div
+                    [ height (px 200)
+                    , backgroundColor offBackground
+                    , border3 (px 1) solid defaultSeparator
+                    ]
+                ]
             ]
         ]
