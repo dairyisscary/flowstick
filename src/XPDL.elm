@@ -2,6 +2,7 @@ module XPDL exposing (XPDL(..), XPDLState, Msg, initialXPDL, update, subscriptio
 
 import XPDL.Lane exposing (Lanes, lanesFromJson)
 import XPDL.Process exposing (Processes, ProcessId, processesFromJson)
+import XPDL.Activity exposing (Activities, activitiesFromJson)
 import Json.XPDL as JX
 
 
@@ -9,6 +10,7 @@ type alias XPDLState =
     { processes : Processes
     , entries : List ProcessId
     , lanes : Lanes
+    , activities : Activities
     , currentProcess : Maybe ProcessId
     }
 
@@ -42,6 +44,7 @@ convertJsonToState jxpdl =
                 , entries = List.map (.id) package.processes
                 , lanes = lanesFromJson package
                 , currentProcess = Nothing
+                , activities = activitiesFromJson package
                 }
 
         Err str ->

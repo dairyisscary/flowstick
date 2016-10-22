@@ -13,7 +13,7 @@ type alias ProcessId =
 type alias Process =
     { id : ProcessId
     , name : String
-    , activites : Activities
+    , activities : Activities
     }
 
 

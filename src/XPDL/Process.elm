@@ -2,6 +2,7 @@ module XPDL.Process exposing (Processes, Process, ProcessId, processesFromJson)
 
 import Dict exposing (Dict)
 import XPDL.Lane exposing (Lanes, LaneId)
+import XPDL.Activity exposing (ActivityId)
 import XPDL.Extra exposing (createDict, find)
 import Json.XPDL.Package exposing (Package)
 import Json.XPDL.Process as XProc
@@ -15,6 +16,7 @@ type alias Process =
     { id : ProcessId
     , name : String
     , lanes : List LaneId
+    , activities : List ActivityId
     }
 
 
@@ -40,6 +42,7 @@ processFromJson package xproc =
         { id = procId
         , name = xproc.name
         , lanes = Maybe.withDefault [] lanes
+        , activities = List.map (.id) xproc.activities
         }
 
 

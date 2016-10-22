@@ -1,4 +1,4 @@
-module Json.XPDL.Activity exposing (Activities, activitiesDecoder)
+module Json.XPDL.Activity exposing (Activities, Activity, activitiesDecoder)
 
 import Json.XPDL.Lane exposing (LaneId)
 import Json.Decode exposing (Decoder, list, string, at, object2)
