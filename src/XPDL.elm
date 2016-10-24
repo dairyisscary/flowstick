@@ -1,5 +1,6 @@
-module XPDL exposing (XPDL(..), XPDLState, Msg, initialXPDL, update, subscriptions, readFile)
+module XPDL exposing (XPDL(..), XPDLState, Msg(..), initialXPDL, update, subscriptions)
 
+import XPDL.File as File
 import XPDL.Lane exposing (Lanes, lanesFromJson)
 import XPDL.Process exposing (Processes, ProcessId, processesFromJson)
 import XPDL.Activity exposing (Activities, activitiesFromJson)
@@ -22,12 +23,8 @@ type XPDL
 
 
 type Msg
-    = JSONMsg (JX.Msg)
-
-
-readFile : String -> Msg
-readFile =
-    JSONMsg << JX.ReadXPDL
+    = JSONMsg JX.Msg
+    | FileMsg File.Msg
 
 
 initialXPDL : XPDL
@@ -69,7 +66,13 @@ update msg model =
         JSONMsg jmsg ->
             jsonUpdate jmsg model
 
+        FileMsg fmsg ->
+            ( model, File.handleMessage fmsg )
+
 
 subscriptions : XPDL -> Sub Msg
 subscriptions _ =
-    Sub.map JSONMsg JX.subscriptions
+    Sub.batch
+        [ Sub.map JSONMsg JX.subscriptions
+        , Sub.map JSONMsg File.subscriptions
+        ]

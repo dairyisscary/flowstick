@@ -1,28 +1,20 @@
-module State exposing (Model, Msg, Msg(UpdateFilename), init, update, subscriptions, readFile)
+module State exposing (Model, Msg(..), init, update, subscriptions)
 
 import XPDL as X
 
 
 type Msg
-    = UpdateFilename String
-    | XPDLMsg X.Msg
+    = XPDLMsg X.Msg
 
 
 type alias Model =
     { xpdl : X.XPDL
-    , filename : String
     }
-
-
-readFile : String -> Msg
-readFile =
-    XPDLMsg << X.readFile
 
 
 initialModel : Model
 initialModel =
     { xpdl = X.initialXPDL
-    , filename = ""
     }
 
 
@@ -34,9 +26,6 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UpdateFilename fn ->
-            ( { model | filename = fn }, Cmd.none )
-
         XPDLMsg xmsg ->
             let
                 ( newXpdl, xpdlCmd ) =
