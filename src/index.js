@@ -6,3 +6,6 @@ const app = Elm.Main.fullscreen();
 
 const xpdl = require('./Json/XPDL');
 xpdl(app);
+
+const file = require('./file');
+file(app);
