@@ -11,6 +11,7 @@ type Class
     = Visualizer
     | Lanes
     | SystemLane
+    | Activities
 
 
 namespaceId : Namespace

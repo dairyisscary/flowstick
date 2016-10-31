@@ -4,7 +4,7 @@ import Html exposing (..)
 import XPDL exposing (..)
 import XPDL.Lane exposing (Lanes)
 import XPDL.Process exposing (Process)
-import XPDL.Activity exposing (Activities)
+import XPDL.Activity exposing (Activities, Activity)
 import Dict exposing (get)
 import State exposing (Msg)
 import Html.CssHelpers exposing (Namespace, withNamespace)
@@ -46,7 +46,12 @@ lanesHtml allLanes currentProcess =
             (List.map rowHtml lanesForCurrentProcess)
 
 
-activitiesHtml : Activities -> Maybe Process -> List (Html State.Msg)
+activityHtml : Activity -> Html State.Msg
+activityHtml act =
+    div [] [ text act.id ]
+
+
+activitiesHtml : Activities -> Maybe Process -> Html State.Msg
 activitiesHtml allActs currentProcess =
     let
         actsForCurrentProcess =
@@ -58,13 +63,13 @@ activitiesHtml allActs currentProcess =
             let
                 fullAct =
                     get actId allActs
-
-                actName =
-                    Maybe.withDefault "" (fullAct `Maybe.andThen` .name)
             in
-                div [] [ text actName ]
+                Maybe.map activityHtml fullAct
+
+        actHtmls =
+            List.map actHtml actsForCurrentProcess |> List.filterMap identity
     in
-        List.map actHtml actsForCurrentProcess
+        div [ ns.class [ Visualizer.Styles.Activities ] ] actHtmls
 
 
 loadedVisualizer : XPDLState -> List (Html State.Msg)
@@ -73,7 +78,7 @@ loadedVisualizer state =
         currentProcess =
             state.currentProcess `Maybe.andThen` (\id -> get id state.processes)
     in
-        [ lanesHtml state.lanes currentProcess ] ++ (activitiesHtml state.activities currentProcess)
+        [ lanesHtml state.lanes currentProcess ] ++ [ activitiesHtml state.activities currentProcess ]
 
 
 visualizer : XPDL -> Html State.Msg
