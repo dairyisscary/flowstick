@@ -1,6 +1,7 @@
 module Visualizer.View exposing (visualizer)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import XPDL exposing (..)
 import XPDL.Lane exposing (Lanes)
 import XPDL.Process exposing (Process)
@@ -17,14 +18,9 @@ ns =
     withNamespace namespaceId
 
 
-lanesHtml : Lanes -> Maybe Process -> Html State.Msg
+lanesHtml : Lanes -> Process -> Html State.Msg
 lanesHtml allLanes currentProcess =
     let
-        lanesForCurrentProcess =
-            currentProcess
-                |> Maybe.map (.lanes)
-                |> Maybe.withDefault []
-
         laneNameFromId laneId =
             get laneId allLanes
                 |> Maybe.map (.name)
@@ -43,31 +39,29 @@ lanesHtml allLanes currentProcess =
                     [ span [] [ text laneName ] ]
     in
         div [ ns.class [ Lanes ] ]
-            (List.map rowHtml lanesForCurrentProcess)
+            (List.map rowHtml currentProcess.lanes)
 
 
 activityHtml : Activity -> Html State.Msg
 activityHtml act =
-    div [] [ text act.id ]
-
-
-activitiesHtml : Activities -> Maybe Process -> Html State.Msg
-activitiesHtml allActs currentProcess =
     let
-        actsForCurrentProcess =
-            currentProcess
-                |> Maybe.map (.activities)
-                |> Maybe.withDefault []
+        styles =
+            style
+                [ ( "left", toString act.x ++ "px" )
+                , ( "top", toString act.y ++ "px" )
+                ]
+    in
+        div [ styles ] [ text (Maybe.withDefault "" act.name) ]
 
+
+activitiesHtml : Activities -> Process -> Html State.Msg
+activitiesHtml acts currentProcess =
+    let
         actHtml actId =
-            let
-                fullAct =
-                    get actId allActs
-            in
-                Maybe.map activityHtml fullAct
+            get actId acts |> Maybe.map activityHtml
 
         actHtmls =
-            List.map actHtml actsForCurrentProcess |> List.filterMap identity
+            List.map actHtml currentProcess.activities |> List.filterMap identity
     in
         div [ ns.class [ Visualizer.Styles.Activities ] ] actHtmls
 
@@ -75,10 +69,16 @@ activitiesHtml allActs currentProcess =
 loadedVisualizer : XPDLState -> List (Html State.Msg)
 loadedVisualizer state =
     let
+        currentProcess : Maybe Process
         currentProcess =
             state.currentProcess `Maybe.andThen` (\id -> get id state.processes)
     in
-        [ lanesHtml state.lanes currentProcess ] ++ [ activitiesHtml state.activities currentProcess ]
+        case currentProcess of
+            Nothing ->
+                [ text "No Process selected yet." ]
+
+            Just process ->
+                [ lanesHtml state.lanes process ] ++ [ activitiesHtml state.activities process ]
 
 
 visualizer : XPDL -> Html State.Msg

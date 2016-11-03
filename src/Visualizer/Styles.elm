@@ -37,4 +37,15 @@ css =
                     ]
                 ]
             ]
+        , (.) Activities
+            [ children
+                [ div
+                    [ height (px 50)
+                    , width (px 100)
+                    , position absolute
+                    , backgroundColor boxForegroundOne
+                    , borderRadius defaultRadius
+                    ]
+                ]
+            ]
         ]

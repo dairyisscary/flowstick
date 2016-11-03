@@ -31,3 +31,12 @@ defaultFont =
 defaultFontSize : Mixin
 defaultFontSize =
     fontSize (px 16)
+
+
+boxForegroundOne : Color
+boxForegroundOne =
+    rgb 38 193 201
+
+
+defaultRadius =
+    px 10
