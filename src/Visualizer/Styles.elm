@@ -1,4 +1,4 @@
-module Visualizer.Styles exposing (Class(..), css, namespaceId)
+module Visualizer.Styles exposing (Class(..), css, namespaceId, activityHeight, activityWidth)
 
 import Css exposing (..)
 import Css.Elements exposing (..)
@@ -19,6 +19,16 @@ namespaceId =
     Styles.Namespace.Visualizer
 
 
+activityHeight : number
+activityHeight =
+    60
+
+
+activityWidth : number
+activityWidth =
+    90
+
+
 css : Stylesheet
 css =
     (stylesheet << namespace namespaceId)
@@ -31,8 +41,7 @@ css =
         , (.) Lanes
             [ children
                 [ div
-                    [ height (px 200)
-                    , backgroundColor offBackground
+                    [ backgroundColor offBackground
                     , border3 (px 1) solid defaultSeparator
                     ]
                 ]
@@ -40,11 +49,14 @@ css =
         , (.) Activities
             [ children
                 [ div
-                    [ height (px 50)
-                    , width (px 100)
+                    [ height (px activityHeight)
+                    , width (px activityWidth)
                     , position absolute
                     , backgroundColor boxForegroundOne
                     , borderRadius defaultRadius
+                    , textOverflow ellipsis
+                    , overflow hidden
+                    , padding (px 10)
                     ]
                 ]
             ]

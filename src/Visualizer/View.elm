@@ -3,13 +3,13 @@ module Visualizer.View exposing (visualizer)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import XPDL exposing (..)
-import XPDL.Lane exposing (Lanes)
+import XPDL.Lane exposing (Lanes, Lane)
 import XPDL.Process exposing (Process)
 import XPDL.Activity exposing (Activities, Activity)
 import Dict exposing (get)
 import State exposing (Msg)
 import Html.CssHelpers exposing (Namespace, withNamespace)
-import Visualizer.Styles exposing (Class(..), namespaceId)
+import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight)
 import Styles.Namespace exposing (FlowstickNamespace)
 
 
@@ -18,28 +18,41 @@ ns =
     withNamespace namespaceId
 
 
-lanesHtml : Lanes -> Process -> Html State.Msg
-lanesHtml allLanes currentProcess =
+laneHtml : List Activity -> Lane -> Html State.Msg
+laneHtml acts lane =
     let
-        laneNameFromId laneId =
-            get laneId allLanes
-                |> Maybe.map (.name)
-                |> Maybe.withDefault ""
+        reduction act accum =
+            if act.lane /= lane.id || act.y < accum then
+                accum
+            else
+                act.y
 
-        rowHtml laneId =
-            let
-                laneName =
-                    laneNameFromId laneId
-            in
-                div
-                    [ ns.classList
-                        [ ( SystemLane, laneName == "system" )
-                        ]
-                    ]
-                    [ span [] [ text laneName ] ]
+        activityBottom =
+            -- Minimum height is starting accum:
+            List.foldr reduction 150 acts
+                |> (+) (activityHeight + 15)
+                |> toString
     in
-        div [ ns.class [ Lanes ] ]
-            (List.map rowHtml currentProcess.lanes)
+        div
+            [ ns.classList [ ( SystemLane, lane.name == "system" ) ]
+            , style [ ( "height", activityBottom ++ "px" ) ]
+            ]
+            [ span [] [ text lane.name ] ]
+
+
+lanesHtml : XPDLState -> Process -> Html State.Msg
+lanesHtml state currentProcess =
+    let
+        realLanes =
+            List.filterMap (\lId -> get lId state.lanes) currentProcess.lanes
+
+        realActs =
+            List.filterMap (\lId -> get lId state.activities) currentProcess.activities
+
+        lanesHtml =
+            List.map (laneHtml realActs) realLanes
+    in
+        div [ ns.class [ Lanes ] ] lanesHtml
 
 
 activityHtml : Activity -> Html State.Msg
@@ -78,7 +91,7 @@ loadedVisualizer state =
                 [ text "No Process selected yet." ]
 
             Just process ->
-                [ lanesHtml state.lanes process ] ++ [ activitiesHtml state.activities process ]
+                [ lanesHtml state process ] ++ [ activitiesHtml state.activities process ]
 
 
 visualizer : XPDL -> Html State.Msg

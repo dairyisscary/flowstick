@@ -10,7 +10,7 @@ css =
     stylesheet
         [ each
             [ everything, body, html ]
-            [ defaultFont, defaultFontSize ]
+            [ defaultFont, defaultFontSize, boxSizing borderBox ]
         , body
             [ backgroundColor defaultBackground
             , color defaultForeground
