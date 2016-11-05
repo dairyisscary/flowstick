@@ -9,12 +9,22 @@ import XPDL.Activity exposing (Activities, Activity)
 import Dict exposing (Dict, get)
 import State exposing (Msg)
 import Html.CssHelpers exposing (Namespace, withNamespace)
-import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight)
+import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth)
 import Styles.Namespace exposing (FlowstickNamespace)
 
 
 type alias LaneDimensions =
-    { y : Int, height : Int }
+    { y : Int, height : Int, width : Int }
+
+
+minLaneHeight : Int
+minLaneHeight =
+    150
+
+
+minLaneWidth : Int
+minLaneWidth =
+    1500
 
 
 ns : FlowstickNamespace Class id State.Msg
@@ -26,7 +36,10 @@ laneHtml : LaneDimensions -> Lane -> Html State.Msg
 laneHtml laneDims lane =
     div
         [ ns.classList [ ( SystemLane, lane.name == "system" ) ]
-        , style [ ( "height", toString laneDims.height ++ "px" ) ]
+        , style
+            [ ( "height", toString laneDims.height ++ "px" )
+            , ( "width", toString laneDims.width ++ "px" )
+            ]
         ]
         [ span [] [ text lane.name ] ]
 
@@ -64,22 +77,28 @@ activitiesHtml laneDims acts currentProcess =
 getLaneDimensionsWithDefault : LaneId -> Dict LaneId LaneDimensions -> LaneDimensions
 getLaneDimensionsWithDefault laneId laneDims =
     get laneId laneDims
-        |> Maybe.withDefault { y = 0, height = 150 }
+        |> Maybe.withDefault { y = 0, height = minLaneHeight, width = minLaneWidth }
 
 
 laneDimensions : List Activity -> List Lane -> Dict LaneId LaneDimensions
 laneDimensions acts lanes =
     let
-        actMax laneId act accum =
-            if act.lane /= laneId || act.y < accum then
+        actMax func laneId act accum =
+            if act.lane /= laneId || func act < accum then
                 accum
             else
-                act.y
+                func act
+
+        activityRight =
+            List.map (.x) acts
+                |> List.maximum
+                |> Maybe.withDefault minLaneWidth
+                |> (+) (activityWidth + 15)
 
         activityBottom lane =
             -- Minimum height is starting accum:
             -- TODO make these contants
-            List.foldr (actMax lane.id) 150 acts
+            List.foldr (actMax (.y) lane.id) minLaneHeight acts
                 |> (+) (activityHeight + 15)
 
         laneReduction lane accum =
@@ -90,7 +109,12 @@ laneDimensions acts lanes =
                         |> Maybe.withDefault 0
 
                 item =
-                    ( lane.id, { height = activityBottom lane, y = prevLaneY } )
+                    ( lane.id
+                    , { height = activityBottom lane
+                      , y = prevLaneY
+                      , width = activityRight
+                      }
+                    )
             in
                 item :: accum
     in
