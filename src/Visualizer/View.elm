@@ -18,41 +18,13 @@ ns =
     withNamespace namespaceId
 
 
-laneHtml : List Activity -> Lane -> Html State.Msg
-laneHtml acts lane =
-    let
-        reduction act accum =
-            if act.lane /= lane.id || act.y < accum then
-                accum
-            else
-                act.y
-
-        activityBottom =
-            -- Minimum height is starting accum:
-            List.foldr reduction 150 acts
-                |> (+) (activityHeight + 15)
-                |> toString
-    in
-        div
-            [ ns.classList [ ( SystemLane, lane.name == "system" ) ]
-            , style [ ( "height", activityBottom ++ "px" ) ]
-            ]
-            [ span [] [ text lane.name ] ]
-
-
-lanesHtml : XPDLState -> Process -> Html State.Msg
-lanesHtml state currentProcess =
-    let
-        realLanes =
-            List.filterMap (\lId -> get lId state.lanes) currentProcess.lanes
-
-        realActs =
-            List.filterMap (\lId -> get lId state.activities) currentProcess.activities
-
-        lanesHtml =
-            List.map (laneHtml realActs) realLanes
-    in
-        div [ ns.class [ Lanes ] ] lanesHtml
+laneHtml : String -> Lane -> Html State.Msg
+laneHtml activityBottom lane =
+    div
+        [ ns.classList [ ( SystemLane, lane.name == "system" ) ]
+        , style [ ( "height", activityBottom ++ "px" ) ]
+        ]
+        [ span [] [ text lane.name ] ]
 
 
 activityHtml : Activity -> Html State.Msg
@@ -79,6 +51,34 @@ activitiesHtml acts currentProcess =
         div [ ns.class [ Visualizer.Styles.Activities ] ] actHtmls
 
 
+loadedProcess : XPDLState -> Process -> List (Html State.Msg)
+loadedProcess state process =
+    let
+        realLanes =
+            List.filterMap (\lId -> get lId state.lanes) process.lanes
+
+        realActs =
+            List.filterMap (\lId -> get lId state.activities) process.activities
+
+        reduction laneId act accum =
+            if act.lane /= laneId || act.y < accum then
+                accum
+            else
+                act.y
+
+        activityBottom lane =
+            -- Minimum height is starting accum:
+            List.foldr (reduction lane.id) 150 realActs
+                |> (+) (activityHeight + 15)
+                |> toString
+
+        lanesHtml =
+            List.map (\lane -> laneHtml (activityBottom lane) lane) realLanes
+    in
+        [ div [ ns.class [ Lanes ] ] lanesHtml ]
+            ++ [ activitiesHtml state.activities process ]
+
+
 loadedVisualizer : XPDLState -> List (Html State.Msg)
 loadedVisualizer state =
     let
@@ -91,7 +91,7 @@ loadedVisualizer state =
                 [ text "No Process selected yet." ]
 
             Just process ->
-                [ lanesHtml state process ] ++ [ activitiesHtml state.activities process ]
+                loadedProcess state process
 
 
 visualizer : XPDL -> Html State.Msg
