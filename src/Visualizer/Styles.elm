@@ -35,6 +35,8 @@ css =
         [ (.) Visualizer
             [ overflow auto
             , position relative
+            , width (pct 100)
+            , height (pct 100)
             ]
         , (.) SystemLane
             [ fontStyle italic ]
@@ -43,6 +45,8 @@ css =
                 [ div
                     [ backgroundColor offBackground
                     , border3 (px 1) solid defaultSeparator
+                    , position absolute
+                    , left zero
                     ]
                 ]
             ]

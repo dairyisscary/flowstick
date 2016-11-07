@@ -4,7 +4,8 @@ import Html.CssHelpers exposing (Namespace)
 
 
 type Namespace
-    = Visualizer
+    = Grid
+    | Visualizer
 
 
 type alias FlowstickNamespace class id msg =

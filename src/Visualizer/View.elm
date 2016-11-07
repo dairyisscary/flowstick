@@ -27,7 +27,7 @@ minLaneWidth =
     1500
 
 
-ns : FlowstickNamespace Class id State.Msg
+ns : FlowstickNamespace Visualizer.Styles.Class id State.Msg
 ns =
     withNamespace namespaceId
 
@@ -39,9 +39,10 @@ laneHtml laneDims lane =
         , style
             [ ( "height", toString laneDims.height ++ "px" )
             , ( "width", toString laneDims.width ++ "px" )
+            , ( "top", toString laneDims.y ++ "px" )
             ]
         ]
-        [ span [] [ text lane.name ] ]
+        [ text lane.name ]
 
 
 activityHtml : Dict LaneId LaneDimensions -> Activity -> Html State.Msg

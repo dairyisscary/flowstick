@@ -6,6 +6,7 @@ import Html exposing (div)
 import Html.App as Html
 import Styles.Reset
 import Styles.Main
+import Styles.Grid
 import Visualizer.Styles
 
 
@@ -16,6 +17,7 @@ allStyleSheets : List Stylesheet
 allStyleSheets =
     [ Styles.Reset.css
     , Styles.Main.css
+    , Styles.Grid.css
     , Visualizer.Styles.css
     ]
 
