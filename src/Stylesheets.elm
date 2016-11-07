@@ -8,6 +8,7 @@ import Styles.Reset
 import Styles.Main
 import Styles.Grid
 import Visualizer.Styles
+import Navigator.Styles
 
 
 port files : CssFileStructure -> Cmd msg
@@ -19,6 +20,7 @@ allStyleSheets =
     , Styles.Main.css
     , Styles.Grid.css
     , Visualizer.Styles.css
+    , Navigator.Styles.css
     ]
 
 

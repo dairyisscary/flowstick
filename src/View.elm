@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import State exposing (Model, Msg)
 import Visualizer.View exposing (visualizer)
 import Header.View exposing (header)
+import Navigator.View exposing (navigator)
 import Styles.Grid exposing (Class(..), withGridNamespace)
 
 
@@ -13,7 +14,7 @@ view model =
     div [ withGridNamespace.class [ ViewSize, Columns, VerticalColumns ] ]
         [ Html.header [] (Header.View.header model)
         , div [ withGridNamespace.class [ Columns, Column ] ]
-            [ div [ style [ ( "width", "400px" ) ] ] [ text "navigator" ]
+            [ navigator model
             , visualizer model.xpdl
             ]
         ]

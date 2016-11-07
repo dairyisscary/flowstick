@@ -18,6 +18,11 @@ offBackground =
     rgb 34 51 71
 
 
+offForeground : Color
+offForeground =
+    rgb 98 127 152
+
+
 defaultSeparator : Color
 defaultSeparator =
     rgb 44 64 90

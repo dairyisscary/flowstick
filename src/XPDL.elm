@@ -25,6 +25,7 @@ type XPDL
 type Msg
     = JSONMsg JX.Msg
     | FileMsg File.Msg
+    | ChangeCurrentProcess ProcessId
 
 
 initialXPDL : XPDL
@@ -68,6 +69,14 @@ update msg model =
 
         FileMsg fmsg ->
             ( model, File.handleMessage fmsg )
+
+        ChangeCurrentProcess newProcId ->
+            case model of
+                Loaded state ->
+                    ( Loaded { state | currentProcess = Just newProcId }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 subscriptions : XPDL -> Sub Msg

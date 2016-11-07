@@ -6,6 +6,7 @@ import Html.CssHelpers exposing (Namespace)
 type Namespace
     = Grid
     | Visualizer
+    | Navigator
 
 
 type alias FlowstickNamespace class id msg =
