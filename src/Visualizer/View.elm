@@ -8,7 +8,7 @@ import XPDL.Process exposing (Process)
 import XPDL.Activity exposing (Activities, Activity)
 import Dict exposing (Dict, get)
 import State exposing (Msg)
-import Html.CssHelpers exposing (Namespace, withNamespace)
+import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth)
 import Styles.Namespace exposing (FlowstickNamespace)
 

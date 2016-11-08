@@ -16,7 +16,7 @@ css : Stylesheet
 css =
     (stylesheet << namespace Styles.Namespace.Navigator)
         [ (.) Navigator
-            [ width (px 300)
+            [ width (px leftHandTotalWidth)
             , descendants
                 [ li
                     [ paddingBottom (px 10)

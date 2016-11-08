@@ -7,6 +7,7 @@ type Namespace
     = Grid
     | Visualizer
     | Navigator
+    | Header
 
 
 type alias FlowstickNamespace class id msg =

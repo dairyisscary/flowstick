@@ -1,4 +1,4 @@
-module Styles.Grid exposing (Class(..), css, withGridNamespace)
+module Styles.Grid exposing (Class(..), css, withGridNamespace, columnsMixin, columnMixin)
 
 import Css exposing (..)
 import Css.Namespace exposing (namespace)
@@ -19,17 +19,27 @@ withGridNamespace =
     withNamespace Grid
 
 
+columnsMixin : Mixin
+columnsMixin =
+    displayFlex
+
+
+columnMixin : Mixin
+columnMixin =
+    flex (int 1)
+
+
 css : Stylesheet
 css =
     (stylesheet << namespace Grid)
         [ (.) Columns
-            [ displayFlex ]
+            [ columnsMixin ]
         , (.) VerticalColumns
             [ withClass Columns
                 [ flexDirection column ]
             ]
         , (.) Column
-            [ flex (int 1) ]
+            [ columnMixin ]
         , (.) FullSize
             [ width (pct 100)
             , height (pct 100)

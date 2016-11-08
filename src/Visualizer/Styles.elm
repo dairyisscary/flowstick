@@ -4,6 +4,7 @@ import Css exposing (..)
 import Css.Elements exposing (..)
 import Css.Namespace exposing (..)
 import Styles.Constants exposing (..)
+import Styles.Grid exposing (columnMixin)
 import Styles.Namespace exposing (Namespace(Visualizer))
 
 
@@ -35,8 +36,7 @@ css =
         [ (.) Visualizer
             [ overflow auto
             , position relative
-            , width (pct 100)
-            , height (pct 100)
+            , columnMixin
             ]
         , (.) SystemLane
             [ fontStyle italic ]
