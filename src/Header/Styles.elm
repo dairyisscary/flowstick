@@ -46,6 +46,7 @@ css =
                     ]
                 , li
                     [ marginLeft (px 20)
+                    , cursor pointer
                     ]
                 ]
             ]

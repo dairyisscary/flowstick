@@ -6,6 +6,7 @@ import Html.CssHelpers exposing (withNamespace)
 import XPDL exposing (Msg(..))
 import XPDL.File exposing (Msg(..))
 import State exposing (Model, Msg)
+import Styles.Icons exposing (IconSize(Small), icon)
 import Header.Styles exposing (Class(..), namespaceId)
 import Styles.Namespace exposing (FlowstickNamespace)
 
@@ -23,7 +24,8 @@ headerClasses =
 buttons : Model -> Html State.Msg
 buttons model =
     ul []
-        [ li [ onClick (State.XPDLMsg (FileMsg OpenFileDialog)) ] [ text "Open" ] ]
+        [ li [ onClick (State.XPDLMsg (FileMsg OpenFileDialog)) ] [ icon "folder open" Small ]
+        ]
 
 
 titleAndControls : Model -> Html State.Msg
