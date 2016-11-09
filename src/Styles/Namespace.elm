@@ -9,6 +9,7 @@ type Namespace
     | Visualizer
     | Navigator
     | Header
+    | Toolbox
 
 
 type alias FlowstickNamespace class id msg =

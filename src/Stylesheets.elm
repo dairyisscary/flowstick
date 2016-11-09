@@ -11,6 +11,7 @@ import Styles.Icons
 import Visualizer.Styles
 import Navigator.Styles
 import Header.Styles
+import Toolbox.Styles
 
 
 port files : CssFileStructure -> Cmd msg
@@ -25,6 +26,7 @@ allStyleSheets =
     , Visualizer.Styles.css
     , Navigator.Styles.css
     , Header.Styles.css
+    , Toolbox.Styles.css
     ]
 
 

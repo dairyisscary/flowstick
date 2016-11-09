@@ -5,6 +5,7 @@ import Css.Elements exposing (..)
 import Css.Namespace exposing (namespace)
 import Styles.Namespace exposing (Namespace(Navigator))
 import Styles.Constants exposing (..)
+import Toolbox.Styles exposing (toolboxWidth)
 
 
 type Class
@@ -16,7 +17,7 @@ css : Stylesheet
 css =
     (stylesheet << namespace Styles.Namespace.Navigator)
         [ (.) Navigator
-            [ width (px leftHandTotalWidth)
+            [ width (px (leftHandTotalWidth - toolboxWidth))
             , descendants
                 [ li
                     [ paddingBottom (px 10)

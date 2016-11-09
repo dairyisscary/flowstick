@@ -1,4 +1,12 @@
-module Styles.Grid exposing (Class(..), css, withGridNamespace, columnsMixin, columnMixin)
+module Styles.Grid
+    exposing
+        ( Class(..)
+        , css
+        , withGridNamespace
+        , columnsMixin
+        , columnMixin
+        , vertColumnsMixin
+        )
 
 import Css exposing (..)
 import Css.Namespace exposing (namespace)
@@ -22,6 +30,11 @@ withGridNamespace =
 columnsMixin : Mixin
 columnsMixin =
     displayFlex
+
+
+vertColumnsMixin : Mixin
+vertColumnsMixin =
+    mixin [ displayFlex, flexDirection column ]
 
 
 columnMixin : Mixin

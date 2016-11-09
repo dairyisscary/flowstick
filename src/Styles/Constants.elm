@@ -18,6 +18,11 @@ offBackground =
     rgb 34 51 71
 
 
+darkBackground : Color
+darkBackground =
+    rgb 28 41 59
+
+
 highlightBackground : Color
 highlightBackground =
     rgb 0 121 196
