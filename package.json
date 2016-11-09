@@ -14,7 +14,7 @@
     "run-dev": "cross-env NODE_ENV=development HOT=1 electron ./",
     "build": "cross-env NODE_ENV=production webpack",
     "build-dev": "cross-env NODE_ENV=development webpack-dev-server --port 3000 --hot --inline",
-    "dev": "concurrently --kill-others \"npm run build-dev\" \"npm run run-dev\""
+    "dev": "concurrently --kill-others \"yarn run build-dev\" \"yarn run run-dev\""
   },
   "bin": {
     "electron": "./node_modules/.bin/electron"
