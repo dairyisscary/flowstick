@@ -5,6 +5,7 @@ import Html.CssHelpers exposing (Namespace)
 
 type Namespace
     = Grid
+    | Icons
     | Visualizer
     | Navigator
     | Header

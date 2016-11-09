@@ -7,6 +7,7 @@ import Html.App as Html
 import Styles.Reset
 import Styles.Main
 import Styles.Grid
+import Styles.Icons
 import Visualizer.Styles
 import Navigator.Styles
 import Header.Styles
@@ -20,6 +21,7 @@ allStyleSheets =
     [ Styles.Reset.css
     , Styles.Main.css
     , Styles.Grid.css
+    , Styles.Icons.css
     , Visualizer.Styles.css
     , Navigator.Styles.css
     , Header.Styles.css
