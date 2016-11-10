@@ -9,7 +9,7 @@ import XPDL.Activity exposing (Activities, Activity)
 import Dict exposing (Dict, get)
 import State exposing (Msg)
 import Html.CssHelpers exposing (withNamespace)
-import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth)
+import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
 import Styles.Namespace exposing (FlowstickNamespace)
 
 
@@ -39,7 +39,7 @@ laneHtml laneDims lane =
         , style
             [ ( "height", toString laneDims.height ++ "px" )
             , ( "width", toString laneDims.width ++ "px" )
-            , ( "top", toString laneDims.y ++ "px" )
+            , ( "top", toString (laneDims.y + topOffset) ++ "px" )
             ]
         ]
         [ text lane.name ]
@@ -56,23 +56,20 @@ activityHtml laneDims act =
 
         styles =
             style
-                [ ( "left", toString act.x ++ "px" )
-                , ( "top", toString thisActY ++ "px" )
+                [ ( "left", toString (act.x + leftOffset) ++ "px" )
+                , ( "top", toString (thisActY + topOffset) ++ "px" )
                 ]
     in
         div [ styles ] [ text (Maybe.withDefault "" act.name) ]
 
 
-activitiesHtml : Dict LaneId LaneDimensions -> Activities -> Process -> Html State.Msg
+activitiesHtml : Dict LaneId LaneDimensions -> Activities -> Process -> List (Html State.Msg)
 activitiesHtml laneDims acts currentProcess =
     let
         actHtml actId =
             get actId acts |> Maybe.map (activityHtml laneDims)
-
-        actHtmls =
-            List.map actHtml currentProcess.activities |> List.filterMap identity
     in
-        div [ ns.class [ Visualizer.Styles.Activities ] ] actHtmls
+        List.map actHtml currentProcess.activities |> List.filterMap identity
 
 
 getLaneDimensionsWithDefault : LaneId -> Dict LaneId LaneDimensions -> LaneDimensions
@@ -137,9 +134,14 @@ loadedProcess state process =
 
         lanesHtml =
             List.map (\lane -> laneHtml (getLaneDimensionsWithDefault lane.id laneDims) lane) realLanes
+
+        actsHtml =
+            activitiesHtml laneDims state.activities process
     in
-        [ div [ ns.class [ Lanes ] ] lanesHtml ]
-            ++ [ activitiesHtml laneDims state.activities process ]
+        [ h1 [ ns.class [ ProcessTitle ] ] [ text process.name ]
+        , div [ ns.class [ Lanes ] ] lanesHtml
+        , div [ ns.class [ Visualizer.Styles.Activities ] ] actsHtml
+        ]
 
 
 loadedVisualizer : XPDLState -> List (Html State.Msg)

@@ -18,6 +18,8 @@ css =
     (stylesheet << namespace Styles.Namespace.Navigator)
         [ (.) Navigator
             [ width (px (leftHandTotalWidth - toolboxWidth))
+            , padding (px defaultPadding)
+            , borderRight3 (px 1) solid brightSeparator
             , descendants
                 [ li
                     [ paddingBottom (px 10)

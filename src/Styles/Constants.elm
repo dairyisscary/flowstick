@@ -38,6 +38,11 @@ offForeground =
     rgb 98 127 152
 
 
+brightSeparator : Color
+brightSeparator =
+    rgb 51 75 105
+
+
 defaultSeparator : Color
 defaultSeparator =
     rgb 44 64 90
@@ -68,5 +73,11 @@ leftHandTotalWidth =
     300
 
 
-defaultRadius =
-    px 10
+defaultPadding : number
+defaultPadding =
+    30
+
+
+defaultBorderRadius : number
+defaultBorderRadius =
+    7

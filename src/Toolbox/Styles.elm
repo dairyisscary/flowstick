@@ -28,7 +28,9 @@ css =
             , alignItems center
             , descendants
                 [ li
-                    [ width (px iconWidth) ]
+                    [ width (px iconWidth)
+                    , marginTop (px 30)
+                    ]
                 ]
             ]
         ]

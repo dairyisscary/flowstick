@@ -1,4 +1,13 @@
-module Visualizer.Styles exposing (Class(..), css, namespaceId, activityHeight, activityWidth)
+module Visualizer.Styles
+    exposing
+        ( Class(..)
+        , css
+        , namespaceId
+        , activityHeight
+        , activityWidth
+        , leftOffset
+        , topOffset
+        )
 
 import Css exposing (..)
 import Css.Elements exposing (..)
@@ -13,6 +22,7 @@ type Class
     | Lanes
     | SystemLane
     | Activities
+    | ProcessTitle
 
 
 namespaceId : Namespace
@@ -30,6 +40,16 @@ activityWidth =
     90
 
 
+leftOffset : number
+leftOffset =
+    50
+
+
+topOffset : number
+topOffset =
+    95
+
+
 css : Stylesheet
 css =
     (stylesheet << namespace namespaceId)
@@ -37,6 +57,12 @@ css =
             [ overflow auto
             , position relative
             , columnMixin
+            ]
+        , (.) ProcessTitle
+            [ position absolute
+            , top (px defaultPadding)
+            , fontSize (px 35)
+            , left (px leftOffset)
             ]
         , (.) SystemLane
             [ fontStyle italic ]
@@ -46,7 +72,7 @@ css =
                     [ backgroundColor offBackground
                     , border3 (px 1) solid defaultSeparator
                     , position absolute
-                    , left zero
+                    , left (px leftOffset)
                     ]
                 ]
             ]
@@ -57,7 +83,7 @@ css =
                     , width (px activityWidth)
                     , position absolute
                     , backgroundColor boxForegroundOne
-                    , borderRadius defaultRadius
+                    , borderRadius (px defaultBorderRadius)
                     , textOverflow ellipsis
                     , overflow hidden
                     , padding (px 10)
