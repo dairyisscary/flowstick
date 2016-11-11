@@ -18,6 +18,7 @@ type alias XPDLState =
 
 type XPDL
     = NotLoaded
+    | Loading
     | Loaded XPDLState
     | ErrorLoad String
 
@@ -56,7 +57,7 @@ jsonUpdate msg model =
             JX.handleMessage msg
 
         newXpdl =
-            Maybe.withDefault model (jsonXpdl `Maybe.andThen` (Just << convertJsonToState))
+            Maybe.withDefault Loading (jsonXpdl `Maybe.andThen` (Just << convertJsonToState))
     in
         ( newXpdl, jsonCmd )
 

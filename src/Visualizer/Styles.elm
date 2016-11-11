@@ -15,6 +15,7 @@ import Css.Namespace exposing (..)
 import Styles.Constants exposing (..)
 import Styles.Grid exposing (columnMixin)
 import Styles.Namespace exposing (Namespace(Visualizer))
+import Loader.Styles exposing (loaderSize)
 
 
 type Class
@@ -23,6 +24,7 @@ type Class
     | SystemLane
     | Activities
     | ProcessTitle
+    | Loader
 
 
 namespaceId : Namespace
@@ -57,6 +59,17 @@ css =
             [ overflow auto
             , position relative
             , columnMixin
+            ]
+        , (.) Loader
+            [ position absolute
+            , top (pct 50)
+            , left (pct 50)
+            , marginTop (px <| loaderSize / -2)
+            , marginLeft (px <| loaderSize / -2)
+            , width (px loaderSize)
+            , height (px loaderSize)
+            , color (rgb 0 100 0)
+            , property "stroke" <| highlightBackground.value
             ]
         , (.) ProcessTitle
             [ position absolute

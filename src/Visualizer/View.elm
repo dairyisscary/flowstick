@@ -11,6 +11,8 @@ import State exposing (Msg)
 import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
 import Styles.Namespace exposing (FlowstickNamespace)
+import Styles.Constants exposing (highlightBackground)
+import Loader.View exposing (loader)
 
 
 type alias LaneDimensions =
@@ -171,6 +173,9 @@ visualizer xpdl =
 
             NotLoaded ->
                 wrapper [ text "Nothing yet!" ]
+
+            Loading ->
+                wrapper [ div [ ns.class [ Loader ] ] [ loader ] ]
 
             Loaded state ->
                 wrapper (loadedVisualizer state)

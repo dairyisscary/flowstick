@@ -10,6 +10,7 @@ type Namespace
     | Navigator
     | Header
     | Toolbox
+    | Loader
 
 
 type alias FlowstickNamespace class id msg =
