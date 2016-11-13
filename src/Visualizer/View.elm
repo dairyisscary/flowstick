@@ -11,8 +11,8 @@ import State exposing (Msg)
 import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
 import Styles.Namespace exposing (FlowstickNamespace)
-import Styles.Constants exposing (highlightBackground)
 import Loader.View exposing (loader)
+import Drag exposing (DragInfo, onClickStartDragging)
 
 
 type alias LaneDimensions =
@@ -47,8 +47,8 @@ laneHtml laneDims lane =
         [ text lane.name ]
 
 
-activityHtml : Dict LaneId LaneDimensions -> Activity -> Html State.Msg
-activityHtml laneDims act =
+activityHtml : DragInfo -> Dict LaneId LaneDimensions -> Activity -> Html State.Msg
+activityHtml dragInfo laneDims act =
     let
         laneDim =
             getLaneDimensionsWithDefault act.lane laneDims
@@ -58,18 +58,18 @@ activityHtml laneDims act =
 
         styles =
             style
-                [ ( "left", toString (act.x + leftOffset) ++ "px" )
-                , ( "top", toString (thisActY + topOffset) ++ "px" )
+                [ ( "left", toString (act.x + leftOffset + dragInfo.diffX) ++ "px" )
+                , ( "top", toString (thisActY + topOffset + dragInfo.diffY) ++ "px" )
                 ]
     in
         div [ styles ] [ text (Maybe.withDefault "" act.name) ]
 
 
-activitiesHtml : Dict LaneId LaneDimensions -> Activities -> Process -> List (Html State.Msg)
-activitiesHtml laneDims acts currentProcess =
+activitiesHtml : DragInfo -> Dict LaneId LaneDimensions -> Activities -> Process -> List (Html State.Msg)
+activitiesHtml dragInfo laneDims acts currentProcess =
     let
         actHtml actId =
-            get actId acts |> Maybe.map (activityHtml laneDims)
+            get actId acts |> Maybe.map (activityHtml dragInfo laneDims)
     in
         List.map actHtml currentProcess.activities |> List.filterMap identity
 
@@ -122,8 +122,8 @@ laneDimensions acts lanes =
             |> Dict.fromList
 
 
-loadedProcess : XPDLState -> Process -> List (Html State.Msg)
-loadedProcess state process =
+loadedProcess : DragInfo -> XPDLState -> Process -> List (Html State.Msg)
+loadedProcess dragInfo state process =
     let
         realLanes =
             List.filterMap (\lId -> get lId state.lanes) process.lanes
@@ -138,7 +138,7 @@ loadedProcess state process =
             List.map (\lane -> laneHtml (getLaneDimensionsWithDefault lane.id laneDims) lane) realLanes
 
         actsHtml =
-            activitiesHtml laneDims state.activities process
+            activitiesHtml dragInfo laneDims state.activities process
     in
         [ h1 [ ns.class [ ProcessTitle ] ] [ text process.name ]
         , div [ ns.class [ Lanes ] ] lanesHtml
@@ -146,8 +146,8 @@ loadedProcess state process =
         ]
 
 
-loadedVisualizer : XPDLState -> List (Html State.Msg)
-loadedVisualizer state =
+loadedVisualizer : DragInfo -> XPDLState -> List (Html State.Msg)
+loadedVisualizer dragInfo state =
     let
         currentProcess : Maybe Process
         currentProcess =
@@ -158,14 +158,17 @@ loadedVisualizer state =
                 [ text "No Process selected yet." ]
 
             Just process ->
-                loadedProcess state process
+                loadedProcess dragInfo state process
 
 
-visualizer : XPDL -> Html State.Msg
-visualizer xpdl =
+visualizer : State.Model -> Html State.Msg
+visualizer model =
     let
+        xpdl =
+            model.xpdl
+
         wrapper =
-            div [ ns.class [ Visualizer ] ]
+            div [ ns.class [ Visualizer ], onClickStartDragging State.DragMsg ]
     in
         case xpdl of
             ErrorLoad err ->
@@ -178,4 +181,4 @@ visualizer xpdl =
                 wrapper [ div [ ns.class [ Loader ] ] [ loader ] ]
 
             Loaded state ->
-                wrapper (loadedVisualizer state)
+                wrapper (loadedVisualizer model.drag state)

@@ -59,6 +59,8 @@ css =
             [ overflow auto
             , position relative
             , columnMixin
+            , property "user-select" "none"
+            , property "-webkit-user-select" "none"
             ]
         , (.) Loader
             [ position absolute

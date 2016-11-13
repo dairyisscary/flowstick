@@ -16,6 +16,6 @@ view model =
         , div [ withGridNamespace.class [ Columns, Column ] ]
             [ toolbox model
             , navigator model
-            , visualizer model.xpdl
+            , visualizer model
             ]
         ]
