@@ -28,7 +28,7 @@
     "cross-env": "2.0.1",
     "css-loader": "0.25.0",
     "electron": "1.4.0",
-    "elm": "0.17.1",
+    "elm": "0.18.0",
     "elm-css": "0.6.0",
     "elm-css-webpack-loader": "2.0.1",
     "elm-webpack-loader": "3.0.6",

@@ -34,10 +34,10 @@ processFromJson package xproc =
             find (\p -> p.process == procId) package.pools
 
         maybeLanes =
-            maybePools `Maybe.andThen` (Just << .lanes)
+            maybePools |> Maybe.andThen (Just << .lanes)
 
         lanes =
-            maybeLanes `Maybe.andThen` (Just << List.map .id)
+            maybeLanes |> Maybe.andThen (Just << List.map .id)
     in
         { id = procId
         , name = xproc.name

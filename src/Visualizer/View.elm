@@ -151,7 +151,7 @@ loadedVisualizer dragInfo state =
     let
         currentProcess : Maybe Process
         currentProcess =
-            state.currentProcess `Maybe.andThen` (\id -> get id state.processes)
+            state.currentProcess |> Maybe.andThen (\id -> get id state.processes)
     in
         case currentProcess of
             Nothing ->

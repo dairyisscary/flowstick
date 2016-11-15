@@ -1,7 +1,7 @@
 module Json.XPDL.Process exposing (Processes, Process, ProcessId, processesDecoder)
 
-import Json.Decode exposing (Decoder, list, string)
-import Json.Decode.Pipeline exposing (decode, optional, nullable, required)
+import Json.Decode exposing (Decoder, list, nullable, string)
+import Json.Decode.Pipeline exposing (decode, optional, required)
 import Json.Decode.XML exposing (listOfOne)
 import Json.XPDL.Activity exposing (Activities, activitiesDecoder)
 

@@ -57,7 +57,7 @@ jsonUpdate msg model =
             JX.handleMessage msg
 
         newXpdl =
-            Maybe.withDefault Loading (jsonXpdl `Maybe.andThen` (Just << convertJsonToState))
+            Maybe.withDefault Loading (jsonXpdl |> Maybe.andThen (Just << convertJsonToState))
     in
         ( newXpdl, jsonCmd )
 

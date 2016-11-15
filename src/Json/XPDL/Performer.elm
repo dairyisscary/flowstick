@@ -1,7 +1,7 @@
 module Json.XPDL.Performer exposing (performerDecoder, Performer)
 
 import Json.Decode exposing (Decoder, string, list)
-import Json.Decode.Pipeline exposing (decode, nullable, optional)
+import Json.Decode.Pipeline exposing (decode, optional)
 
 
 type alias Performer =

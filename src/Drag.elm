@@ -3,7 +3,7 @@ module Drag exposing (Msg(..), DragInfo, onClickStartDragging, update, subscript
 import Mouse exposing (ups, moves)
 import Html exposing (Attribute)
 import Html.Events exposing (defaultOptions, onWithOptions)
-import Json.Decode as Json exposing (Decoder, (:=), map, int, object2)
+import Json.Decode as Json exposing (Decoder, field, map, int, map2)
 
 
 type alias DragInfo =
@@ -35,8 +35,8 @@ init =
 
 computeDiff : Point -> { x : Int, y : Int } -> Point
 computeDiff start mousePos =
-    ( mousePos.x - fst start
-    , mousePos.y - snd start
+    ( mousePos.x - Tuple.first start
+    , mousePos.y - Tuple.second start
     )
 
 
@@ -85,4 +85,4 @@ onClickStartDragging actionFn =
 
 decodeMousePosition : Decoder Point
 decodeMousePosition =
-    object2 (,) ("pageX" := int) ("pageY" := int)
+    map2 (,) (field "pageX" int) (field "pageY" int)

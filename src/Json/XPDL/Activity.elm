@@ -1,9 +1,9 @@
 module Json.XPDL.Activity exposing (Activities, Activity, activitiesDecoder)
 
 import Json.XPDL.Lane exposing (LaneId)
-import Json.Decode exposing (Decoder, list, string, at, object2)
+import Json.Decode exposing (Decoder, list, string, at, map2, nullable)
 import Json.Decode.XML exposing (listOfOne, intFromString)
-import Json.Decode.Pipeline exposing (decode, optional, required, nullable)
+import Json.Decode.Pipeline exposing (decode, optional, required)
 
 
 type alias ActivityId =
@@ -41,7 +41,7 @@ activityGraphicsDecoder =
                 |> required "LaneId" string
 
         cordsDecoder =
-            object2 (\x y -> { x = x, y = y })
+            map2 (\x y -> { x = x, y = y })
                 (at [ "$", "XCoordinate" ] intFromString)
                 (at [ "$", "YCoordinate" ] intFromString)
 

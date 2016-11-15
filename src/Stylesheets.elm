@@ -2,8 +2,6 @@ port module Stylesheets exposing (..)
 
 import Css exposing (Stylesheet)
 import Css.File exposing (..)
-import Html exposing (div)
-import Html.App as Html
 import Styles.Reset
 import Styles.Main
 import Styles.Grid
@@ -44,11 +42,6 @@ cssFiles =
         toFileStructure [ ( "elm-css-build.css", allCss ) ]
 
 
-main : Program Never
+main : CssCompilerProgram
 main =
-    Html.program
-        { init = ( (), files cssFiles )
-        , view = \_ -> (div [] [])
-        , update = \_ _ -> ( (), Cmd.none )
-        , subscriptions = \_ -> Sub.none
-        }
+    compiler files cssFiles

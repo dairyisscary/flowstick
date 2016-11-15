@@ -1,29 +1,39 @@
 module Json.Decode.XML exposing (listOfOne, intFromString)
 
 import String exposing (toInt)
-import Json.Decode exposing (Decoder, Value, decodeValue, customDecoder, value, list, string)
+import Json.Decode as JD
 
 
-checkList : Decoder a -> List Value -> Result String a
+checkList : JD.Decoder a -> List JD.Value -> JD.Decoder a
 checkList itemDecoder list =
     case list of
-        one :: [] ->
-            (decodeValue itemDecoder one)
+        _ :: [] ->
+            JD.index 0 itemDecoder
 
         _ ->
-            Err "Expecting excatly one element."
+            JD.fail "Expecting excatly one element."
 
 
 {-| Given a Decoder, return a new decoder that uses this Decoder at the first index
 of a json array. If the list is not of length one, the Result is an Err.
 -}
-listOfOne : Decoder a -> Decoder a
+listOfOne : JD.Decoder a -> JD.Decoder a
 listOfOne itemDecoder =
-    customDecoder (list value) (checkList itemDecoder)
+    JD.list JD.value |> JD.andThen (checkList itemDecoder)
+
+
+convertToInt : String -> JD.Decoder Int
+convertToInt str =
+    case toInt str of
+        Ok int ->
+            JD.succeed int
+
+        Err e ->
+            JD.fail e
 
 
 {-| Returns a decoder that reads from XML as a string but returns an Int.
 -}
-intFromString : Decoder Int
+intFromString : JD.Decoder Int
 intFromString =
-    customDecoder string toInt
+    JD.string |> JD.andThen convertToInt

@@ -1,7 +1,7 @@
 module Json.XPDL.Package exposing (Package, packageDecoder)
 
-import Json.Decode exposing (Decoder, string, list)
-import Json.Decode.Pipeline exposing (decode, hardcoded, nullable, optional, required)
+import Json.Decode exposing (Decoder, string, list, nullable)
+import Json.Decode.Pipeline exposing (decode, hardcoded, optional, required)
 import Json.Decode.XML exposing (listOfOne)
 import Json.XPDL.Pool exposing (Pools, poolsDecoder)
 import Json.XPDL.Process exposing (Processes, processesDecoder)

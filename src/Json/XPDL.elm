@@ -1,6 +1,6 @@
 port module Json.XPDL exposing (XPDL, Msg(ReadXPDL), handleMessage, subscriptions)
 
-import Json.Decode exposing (Decoder, decodeString, (:=))
+import Json.Decode exposing (Decoder, decodeString, field)
 import Json.XPDL.Package exposing (Package, packageDecoder)
 
 
@@ -39,7 +39,7 @@ decodeXPDL json =
     let
         decoder : Decoder Package
         decoder =
-            "xpdl:Package" := packageDecoder json
+            field "xpdl:Package" (packageDecoder json)
     in
         decodeString decoder json
 
@@ -56,7 +56,7 @@ decodeReadResult readRes =
                 Err defaultXPDLError
 
         loadedXPDL =
-            portRes `Result.andThen` decodeXPDL
+            portRes |> Result.andThen decodeXPDL
     in
         LoadXPDL loadedXPDL
 
