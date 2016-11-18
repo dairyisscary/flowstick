@@ -13,6 +13,7 @@ type alias Activity =
     , lane : LaneId
     , x : Int
     , y : Int
+    , selected : Bool
     }
 
 
@@ -35,6 +36,7 @@ activityFromJson act =
         , lane = graphicsInfo.lane
         , x = graphicsInfo.x
         , y = graphicsInfo.y
+        , selected = False
         }
 
 

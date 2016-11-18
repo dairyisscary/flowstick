@@ -2,12 +2,13 @@ module Visualizer.View exposing (visualizer)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import XPDL exposing (..)
 import XPDL.Lane exposing (Lanes, Lane, LaneId)
 import XPDL.Process exposing (Process)
 import XPDL.Activity exposing (Activities, Activity)
 import Dict exposing (Dict, get)
-import State exposing (Msg)
+import State exposing (Msg(..))
 import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
 import Styles.Namespace exposing (FlowstickNamespace)
@@ -56,13 +57,19 @@ activityHtml dragInfo laneDims act =
         thisActY =
             act.y + laneDim.y
 
+        classes =
+            ns.classList [ ( Selected, act.selected ) ]
+
+        clickHandle =
+            onClick (XPDLMsg <| SelectActivity act.id)
+
         styles =
             style
                 [ ( "left", toString (act.x + leftOffset + dragInfo.diffX) ++ "px" )
                 , ( "top", toString (thisActY + topOffset + dragInfo.diffY) ++ "px" )
                 ]
     in
-        div [ styles ] [ text (Maybe.withDefault "" act.name) ]
+        div [ styles, classes, clickHandle ] [ text (Maybe.withDefault "" act.name) ]
 
 
 activitiesHtml : DragInfo -> Dict LaneId LaneDimensions -> Activities -> Process -> List (Html State.Msg)

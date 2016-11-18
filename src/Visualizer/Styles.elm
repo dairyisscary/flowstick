@@ -25,6 +25,7 @@ type Class
     | Activities
     | ProcessTitle
     | Loader
+    | Selected
 
 
 namespaceId : Namespace
@@ -50,6 +51,11 @@ leftOffset =
 topOffset : number
 topOffset =
     95
+
+
+semiBoxForegroundOne : Color
+semiBoxForegroundOne =
+    rgba boxForegroundOne.red boxForegroundOne.green boxForegroundOne.blue 0.5
 
 
 css : Stylesheet
@@ -97,11 +103,17 @@ css =
                     [ height (px activityHeight)
                     , width (px activityWidth)
                     , position absolute
-                    , backgroundColor boxForegroundOne
+                    , color boxForegroundOne
+                    , backgroundColor semiBoxForegroundOne
                     , borderRadius (px defaultBorderRadius)
                     , textOverflow ellipsis
                     , overflow hidden
                     , padding (px 10)
+                    , property "transition" "color 0.1s ease-in-out, background-color 0.1s ease-in-out"
+                    , withClass Selected
+                        [ color (rgb 255 255 255)
+                        , backgroundColor boxForegroundOne
+                        ]
                     ]
                 ]
             ]

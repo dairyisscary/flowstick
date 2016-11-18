@@ -1,9 +1,10 @@
 module XPDL exposing (XPDL(..), XPDLState, Msg(..), initialXPDL, update, subscriptions)
 
+import Dict exposing (update, map)
 import XPDL.File as File
 import XPDL.Lane exposing (Lanes, lanesFromJson)
 import XPDL.Process exposing (Processes, ProcessId, processesFromJson)
-import XPDL.Activity exposing (Activities, activitiesFromJson)
+import XPDL.Activity exposing (Activities, Activity, ActivityId, activitiesFromJson)
 import Json.XPDL as JX
 
 
@@ -27,6 +28,7 @@ type Msg
     = JSONMsg JX.Msg
     | FileMsg File.Msg
     | ChangeCurrentProcess ProcessId
+    | SelectActivity ActivityId
 
 
 initialXPDL : XPDL
@@ -62,6 +64,25 @@ jsonUpdate msg model =
         ( newXpdl, jsonCmd )
 
 
+modifyLoaded : (XPDLState -> XPDLState) -> XPDL -> XPDL
+modifyLoaded fn xpdl =
+    case xpdl of
+        Loaded state ->
+            Loaded <| fn state
+
+        _ ->
+            xpdl
+
+
+modifyAct : (Activity -> Activity) -> ActivityId -> XPDL -> XPDL
+modifyAct fn id xpdl =
+    let
+        updateAct state =
+            { state | activities = Dict.update id (Maybe.andThen <| Just << fn) state.activities }
+    in
+        modifyLoaded updateAct xpdl
+
+
 update : Msg -> XPDL -> ( XPDL, Cmd a )
 update msg model =
     case msg of
@@ -70,6 +91,22 @@ update msg model =
 
         FileMsg fmsg ->
             ( model, File.handleMessage fmsg )
+
+        SelectActivity actId ->
+            let
+                deSelectAll =
+                    modifyLoaded
+                        (\s ->
+                            { s
+                                | activities =
+                                    Dict.map (\_ a -> { a | selected = False }) s.activities
+                            }
+                        )
+
+                selectOne =
+                    modifyAct (\a -> { a | selected = True }) actId
+            in
+                ( selectOne <| deSelectAll model, Cmd.none )
 
         ChangeCurrentProcess newProcId ->
             case model of
