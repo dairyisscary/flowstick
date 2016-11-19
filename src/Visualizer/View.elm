@@ -125,7 +125,9 @@ laneDimensions acts lanes =
             in
                 item :: accum
     in
-        List.foldr laneReduction [] lanes
+        -- We fold assoicating from the left so that the previous accumulations
+        -- are from top to bottom.
+        List.foldl laneReduction [] lanes
             |> Dict.fromList
 
 
