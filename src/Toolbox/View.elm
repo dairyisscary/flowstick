@@ -1,7 +1,7 @@
 module Toolbox.View exposing (toolbox)
 
 import Html exposing (..)
-import State exposing (Msg(XPDLMsg), Model)
+import State exposing (Msg, Model)
 import Toolbox.Styles exposing (Class(..))
 import Html.CssHelpers exposing (withNamespace)
 import Styles.Namespace exposing (Namespace(Toolbox), FlowstickNamespace)

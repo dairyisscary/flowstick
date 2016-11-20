@@ -1,34 +1,13 @@
-module XPDL exposing (XPDL(..), XPDLState, Msg(..), initialXPDL, update, subscriptions)
+module XPDL exposing (initialXPDL, update, subscriptions)
 
 import Dict exposing (update, map)
+import State exposing (Msg(..))
 import XPDL.File as File
-import XPDL.Lane exposing (Lanes, lanesFromJson)
-import XPDL.Process exposing (Processes, ProcessId, processesFromJson)
-import XPDL.Activity exposing (Activities, Activity, ActivityId, activitiesFromJson)
+import XPDL.Lane exposing (lanesFromJson)
+import XPDL.Process exposing (processesFromJson)
+import XPDL.Activity exposing (Activity, ActivityId, activitiesFromJson)
 import Json.XPDL as JX
-
-
-type alias XPDLState =
-    { processes : Processes
-    , entries : List ProcessId
-    , lanes : Lanes
-    , activities : Activities
-    , currentProcess : Maybe ProcessId
-    }
-
-
-type XPDL
-    = NotLoaded
-    | Loading
-    | Loaded XPDLState
-    | ErrorLoad String
-
-
-type Msg
-    = JSONMsg JX.Msg
-    | FileMsg File.Msg
-    | ChangeCurrentProcess ProcessId
-    | SelectActivity ActivityId
+import XPDL.State exposing (XPDL(..), XPDLState)
 
 
 initialXPDL : XPDL
@@ -115,6 +94,9 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
 
 
 subscriptions : XPDL -> Sub Msg

@@ -1,27 +1,10 @@
-module Drag exposing (Msg(..), DragInfo, onClickStartDragging, update, subscriptions, init)
+module Drag exposing (onClickStartDragging, update, subscriptions, init)
 
+import State exposing (Msg(..), Model, Point, DragInfo)
 import Mouse exposing (ups, moves)
 import Html exposing (Attribute)
 import Html.Events exposing (defaultOptions, onWithOptions)
 import Json.Decode as Json exposing (Decoder, field, map, int, map2)
-
-
-type alias DragInfo =
-    { isDragging : Bool
-    , start : Point
-    , diffX : Int
-    , diffY : Int
-    }
-
-
-type alias Point =
-    ( Int, Int )
-
-
-type Msg
-    = StartDragging Point
-    | StopDragging
-    | Move Point
 
 
 init : DragInfo
@@ -40,7 +23,7 @@ computeDiff start mousePos =
     )
 
 
-update : Msg -> DragInfo -> ( DragInfo, Cmd msg )
+update : State.Msg -> DragInfo -> ( DragInfo, Cmd msg )
 update msg dragInfo =
     case msg of
         StartDragging point ->
@@ -62,6 +45,9 @@ update msg dragInfo =
                 ( { dragInfo | diffX = newX, diffY = newY }, Cmd.none )
             else
                 ( dragInfo, Cmd.none )
+
+        _ ->
+            ( dragInfo, Cmd.none )
 
 
 subscriptions : DragInfo -> Sub Msg

@@ -2,11 +2,11 @@ module Navigator.View exposing (navigator)
 
 import Html exposing (..)
 import Html.Events exposing (onClick)
-import State exposing (Msg(XPDLMsg), Model)
+import State exposing (Msg(ChangeCurrentProcess), Model)
 import Styles.Namespace exposing (Namespace(Navigator), FlowstickNamespace)
 import Navigator.Styles exposing (Class(..))
 import Html.CssHelpers exposing (withNamespace)
-import XPDL exposing (XPDLState, XPDL(Loaded), Msg(ChangeCurrentProcess))
+import XPDL.State exposing (XPDLState, XPDL(Loaded))
 import XPDL.Process exposing (ProcessId)
 import Dict exposing (get)
 
@@ -26,7 +26,7 @@ processListing state procId =
     in
         li
             [ ns.classList [ ( CurrentProcess, state.currentProcess == Just procId ) ]
-            , onClick (XPDLMsg (ChangeCurrentProcess procId))
+            , onClick <| ChangeCurrentProcess procId
             ]
             [ text procName ]
 

@@ -3,17 +3,16 @@ module Visualizer.View exposing (visualizer)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import XPDL exposing (..)
 import XPDL.Lane exposing (Lanes, Lane, LaneId)
 import XPDL.Process exposing (Process)
 import XPDL.Activity exposing (Activities, Activity)
 import Dict exposing (Dict, get)
-import State exposing (Msg(..))
+import State exposing (Msg(..), DragInfo)
+import XPDL.State exposing (XPDLState, XPDL(..))
 import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
 import Styles.Namespace exposing (FlowstickNamespace)
 import Loader.View exposing (loader)
-import Drag exposing (DragInfo, onClickStartDragging)
 
 
 type alias LaneDimensions =
@@ -61,7 +60,7 @@ activityHtml dragInfo laneDims act =
             ns.classList [ ( Selected, act.selected ) ]
 
         clickHandle =
-            onClick (XPDLMsg <| SelectActivity act.id)
+            onClick <| SelectActivity act.id
 
         styles =
             style
@@ -177,7 +176,7 @@ visualizer model =
             model.xpdl
 
         wrapper =
-            div [ ns.class [ Visualizer ], onClickStartDragging State.DragMsg ]
+            div [ ns.class [ Visualizer ] ]
     in
         case xpdl of
             ErrorLoad err ->

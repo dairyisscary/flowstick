@@ -1,53 +1,35 @@
-module State exposing (Model, Msg(..), init, update, subscriptions)
+module State exposing (Model, Msg(..), Point, DragInfo)
 
-import XPDL as X
-import Drag
+import XPDL.State as XS
+import XPDL.File as File
+import XPDL.Process exposing (ProcessId)
+import XPDL.Activity exposing (ActivityId)
+import Json.XPDL as JX
+
+
+type alias Point =
+    ( Int, Int )
 
 
 type Msg
-    = XPDLMsg X.Msg
-    | DragMsg Drag.Msg
+    = JSONMsg JX.Msg
+    | FileMsg File.Msg
+    | ChangeCurrentProcess ProcessId
+    | SelectActivity ActivityId
+    | StartDragging Point
+    | StopDragging
+    | Move Point
+
+
+type alias DragInfo =
+    { isDragging : Bool
+    , start : Point
+    , diffX : Int
+    , diffY : Int
+    }
 
 
 type alias Model =
-    { xpdl : X.XPDL
-    , drag : Drag.DragInfo
+    { xpdl : XS.XPDL
+    , drag : DragInfo
     }
-
-
-initialModel : Model
-initialModel =
-    { xpdl = X.initialXPDL
-    , drag = Drag.init
-    }
-
-
-init : ( Model, Cmd Msg )
-init =
-    ( initialModel, Cmd.none )
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        XPDLMsg xmsg ->
-            let
-                ( newXpdl, xpdlCmd ) =
-                    X.update xmsg model.xpdl
-            in
-                ( { model | xpdl = newXpdl }, xpdlCmd )
-
-        DragMsg dmsg ->
-            let
-                ( newDrag, dragCmd ) =
-                    Drag.update dmsg model.drag
-            in
-                ( { model | drag = newDrag }, dragCmd )
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.batch
-        [ Sub.map XPDLMsg (X.subscriptions model.xpdl)
-        , Sub.map DragMsg (Drag.subscriptions model.drag)
-        ]
