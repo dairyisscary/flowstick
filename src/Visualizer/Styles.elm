@@ -113,6 +113,7 @@ css =
                     , withClass Selected
                         [ color (rgb 255 255 255)
                         , backgroundColor boxForegroundOne
+                        , property "z-index" "1"
                         ]
                     ]
                 ]

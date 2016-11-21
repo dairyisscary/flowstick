@@ -15,8 +15,7 @@ type Msg
     = JSONMsg JX.Msg
     | FileMsg File.Msg
     | ChangeCurrentProcess ProcessId
-    | SelectActivity ActivityId
-    | StartDragging Point
+    | SelectActivity ActivityId Point
     | StopDragging
     | Move Point
 

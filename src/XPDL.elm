@@ -71,7 +71,7 @@ update msg model =
         FileMsg fmsg ->
             ( model, File.handleMessage fmsg )
 
-        SelectActivity actId ->
+        SelectActivity actId _ ->
             let
                 deSelectAll =
                     modifyLoaded

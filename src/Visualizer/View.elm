@@ -2,7 +2,6 @@ module Visualizer.View exposing (visualizer)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
 import XPDL.Lane exposing (Lanes, Lane, LaneId)
 import XPDL.Process exposing (Process)
 import XPDL.Activity exposing (Activities, Activity)
@@ -13,6 +12,7 @@ import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
 import Styles.Namespace exposing (FlowstickNamespace)
 import Loader.View exposing (loader)
+import Drag exposing (onClickStartDragging)
 
 
 type alias LaneDimensions =
@@ -47,28 +47,37 @@ laneHtml laneDims lane =
         [ text lane.name ]
 
 
+activityPostion : Bool -> number -> number -> String
+activityPostion selected dragOffset position =
+    let
+        pos =
+            if selected then
+                dragOffset + position
+            else
+                position
+    in
+        toString pos ++ "px"
+
+
 activityHtml : DragInfo -> Dict LaneId LaneDimensions -> Activity -> Html State.Msg
 activityHtml dragInfo laneDims act =
     let
         laneDim =
             getLaneDimensionsWithDefault act.lane laneDims
 
-        thisActY =
-            act.y + laneDim.y
-
         classes =
             ns.classList [ ( Selected, act.selected ) ]
 
-        clickHandle =
-            onClick <| SelectActivity act.id
+        mouseDown =
+            onClickStartDragging act.id
 
         styles =
             style
-                [ ( "left", toString (act.x + leftOffset + dragInfo.diffX) ++ "px" )
-                , ( "top", toString (thisActY + topOffset + dragInfo.diffY) ++ "px" )
+                [ ( "left", activityPostion act.selected dragInfo.diffX <| act.x + leftOffset )
+                , ( "top", activityPostion act.selected dragInfo.diffY <| act.y + laneDim.y + topOffset )
                 ]
     in
-        div [ styles, classes, clickHandle ] [ text (Maybe.withDefault "" act.name) ]
+        div [ styles, classes, mouseDown ] [ text (Maybe.withDefault "" act.name) ]
 
 
 activitiesHtml : DragInfo -> Dict LaneId LaneDimensions -> Activities -> Process -> List (Html State.Msg)

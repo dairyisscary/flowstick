@@ -5,6 +5,7 @@ import Mouse exposing (ups, moves)
 import Html exposing (Attribute)
 import Html.Events exposing (defaultOptions, onWithOptions)
 import Json.Decode as Json exposing (Decoder, field, map, int, map2)
+import XPDL.Activity exposing (ActivityId)
 
 
 init : DragInfo
@@ -26,7 +27,7 @@ computeDiff start mousePos =
 update : State.Msg -> DragInfo -> ( DragInfo, Cmd msg )
 update msg dragInfo =
     case msg of
-        StartDragging point ->
+        SelectActivity _ point ->
             ( { isDragging = True
               , start = point
               , diffX = 0
@@ -61,12 +62,12 @@ subscriptions dragInfo =
         Sub.none
 
 
-onClickStartDragging : (Msg -> msg) -> Attribute msg
-onClickStartDragging actionFn =
+onClickStartDragging : ActivityId -> Attribute Msg
+onClickStartDragging actId =
     onWithOptions
         "mousedown"
         defaultOptions
-        (Json.map (actionFn << StartDragging) decodeMousePosition)
+        (Json.map (SelectActivity actId) decodeMousePosition)
 
 
 decodeMousePosition : Decoder Point
