@@ -2,6 +2,7 @@ module Visualizer.View exposing (visualizer)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onMouseDown)
 import XPDL.Lane exposing (Lanes, Lane, LaneId)
 import XPDL.Process exposing (Process)
 import XPDL.Activity exposing (Activities, Activity)
@@ -185,7 +186,7 @@ visualizer model =
             model.xpdl
 
         wrapper =
-            div [ ns.class [ Visualizer ] ]
+            div [ ns.class [ Visualizer ], onMouseDown DeselectAllActivities ]
     in
         case xpdl of
             ErrorLoad err ->

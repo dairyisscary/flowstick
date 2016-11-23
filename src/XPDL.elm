@@ -62,6 +62,15 @@ modifyAct fn id xpdl =
         modifyLoaded updateAct xpdl
 
 
+deselectAllActivites : XPDLState -> XPDLState
+deselectAllActivites state =
+    let
+        unselectedActs =
+            Dict.map (\_ a -> { a | selected = False }) state.activities
+    in
+        { state | activities = unselectedActs }
+
+
 update : Msg -> XPDL -> ( XPDL, Cmd a )
 update msg model =
     case msg of
@@ -73,19 +82,10 @@ update msg model =
 
         SelectActivity actId _ ->
             let
-                deSelectAll =
-                    modifyLoaded
-                        (\s ->
-                            { s
-                                | activities =
-                                    Dict.map (\_ a -> { a | selected = False }) s.activities
-                            }
-                        )
-
                 selectOne =
                     modifyAct (\a -> { a | selected = True }) actId
             in
-                ( selectOne <| deSelectAll model, Cmd.none )
+                ( selectOne <| modifyLoaded deselectAllActivites model, Cmd.none )
 
         ChangeCurrentProcess newProcId ->
             case model of
@@ -94,6 +94,9 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        DeselectAllActivities ->
+            ( modifyLoaded deselectAllActivites model, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
