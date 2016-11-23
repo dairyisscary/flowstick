@@ -104,6 +104,7 @@ css =
                     , width (px activityWidth)
                     , position absolute
                     , color boxForegroundOne
+                    , cursor pointer
                     , backgroundColor semiBoxForegroundOne
                     , borderRadius (px defaultBorderRadius)
                     , textOverflow ellipsis

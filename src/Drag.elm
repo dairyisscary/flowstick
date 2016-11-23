@@ -1,4 +1,4 @@
-module Drag exposing (onClickStartDragging, update, subscriptions, init)
+module Drag exposing (onMouseDownStartDragging, update, subscriptions, init)
 
 import State exposing (Msg(..), Model, Point, DragInfo)
 import Mouse exposing (ups, moves)
@@ -62,11 +62,11 @@ subscriptions dragInfo =
         Sub.none
 
 
-onClickStartDragging : ActivityId -> Attribute Msg
-onClickStartDragging actId =
+onMouseDownStartDragging : Bool -> ActivityId -> Attribute Msg
+onMouseDownStartDragging blockPropgation actId =
     onWithOptions
         "mousedown"
-        defaultOptions
+        { stopPropagation = blockPropgation, preventDefault = False }
         (Json.map (SelectActivity actId) decodeMousePosition)
 
 

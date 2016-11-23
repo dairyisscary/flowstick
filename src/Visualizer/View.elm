@@ -13,7 +13,7 @@ import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
 import Styles.Namespace exposing (FlowstickNamespace)
 import Loader.View exposing (loader)
-import Drag exposing (onClickStartDragging)
+import Drag exposing (onMouseDownStartDragging)
 
 
 type alias LaneDimensions =
@@ -70,7 +70,7 @@ activityHtml dragInfo laneDims act =
             ns.classList [ ( Selected, act.selected ) ]
 
         mouseDown =
-            onClickStartDragging act.id
+            onMouseDownStartDragging True act.id
 
         styles =
             style
