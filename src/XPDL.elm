@@ -1,7 +1,7 @@
 module XPDL exposing (initialXPDL, update, subscriptions)
 
 import Dict exposing (update, get, map)
-import XPDL.Extra exposing (find)
+import List.Extra exposing (find)
 import State exposing (Msg(..), Model, DragInfo)
 import XPDL.File as File
 import XPDL.Lane exposing (LaneId, lanesFromJson)

@@ -1,7 +1,7 @@
 module XPDL.Activity exposing (Activities, Activity, ActivityId, activitiesFromJson)
 
 import XPDL.Lane exposing (LaneId)
-import XPDL.Extra exposing (createDict, find)
+import XPDL.Extra exposing (createDict)
 import Dict exposing (Dict)
 import Json.XPDL.Package exposing (Package)
 import Json.XPDL.Activity as JAct

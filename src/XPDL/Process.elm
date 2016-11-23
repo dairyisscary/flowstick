@@ -3,7 +3,8 @@ module XPDL.Process exposing (Processes, Process, ProcessId, processesFromJson)
 import Dict exposing (Dict)
 import XPDL.Lane exposing (Lanes, LaneId)
 import XPDL.Activity exposing (ActivityId)
-import XPDL.Extra exposing (createDict, find)
+import List.Extra exposing (find)
+import XPDL.Extra exposing (createDict)
 import Json.XPDL.Package exposing (Package)
 import Json.XPDL.Process as XProc
 
