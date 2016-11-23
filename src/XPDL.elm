@@ -1,13 +1,15 @@
 module XPDL exposing (initialXPDL, update, subscriptions)
 
-import Dict exposing (update, map)
-import State exposing (Msg(..))
+import Dict exposing (update, get, map)
+import XPDL.Extra exposing (find)
+import State exposing (Msg(..), Model, DragInfo)
 import XPDL.File as File
-import XPDL.Lane exposing (lanesFromJson)
+import XPDL.Lane exposing (LaneId, lanesFromJson)
 import XPDL.Process exposing (processesFromJson)
 import XPDL.Activity exposing (Activity, ActivityId, activitiesFromJson)
 import Json.XPDL as JX
 import XPDL.State exposing (XPDL(..), XPDLState)
+import Visualizer.View exposing (laneDimensions)
 
 
 initialXPDL : XPDL
@@ -71,35 +73,89 @@ deselectAllActivites state =
         { state | activities = unselectedActs }
 
 
-update : Msg -> XPDL -> ( XPDL, Cmd a )
+computeNewLaneAndCords : List ( LaneId, Int ) -> DragInfo -> Activity -> Activity
+computeNewLaneAndCords laneYs dragInfo act =
+    let
+        currentLaneY =
+            find ((==) act.lane << Tuple.first) laneYs
+                |> Maybe.map Tuple.second
+                |> Maybe.withDefault 0
+
+        totalActivityY =
+            act.y + dragInfo.diffY + currentLaneY
+
+        laneFinder laneInfo accum =
+            if Tuple.second laneInfo < totalActivityY then
+                laneInfo
+            else
+                accum
+
+        newLane =
+            List.sortBy Tuple.second laneYs
+                |> List.foldl laneFinder ( act.lane, currentLaneY )
+    in
+        { act
+            | x = act.x + dragInfo.diffX |> max 0
+            , y = totalActivityY - Tuple.second newLane |> max 0
+            , lane = Tuple.first newLane
+        }
+
+
+addOffsets : DragInfo -> XPDLState -> XPDLState
+addOffsets dragInfo state =
+    let
+        realCurrentProcess =
+            state.currentProcess |> Maybe.andThen (\id -> get id state.processes)
+
+        procProp procPropFn statePropFn =
+            Maybe.map procPropFn realCurrentProcess
+                |> Maybe.map (List.filterMap (\id -> get id (statePropFn state)))
+                |> Maybe.withDefault []
+
+        laneDims =
+            laneDimensions (procProp (.activities) (.activities)) (procProp (.lanes) (.lanes))
+                |> Dict.toList
+                |> List.map (\( laneId, laneDims ) -> ( laneId, laneDims.y ))
+
+        moveAct _ act =
+            if act.selected then
+                computeNewLaneAndCords laneDims dragInfo act
+            else
+                act
+
+        movedActs =
+            Dict.map moveAct state.activities
+    in
+        { state | activities = movedActs }
+
+
+update : Msg -> Model -> ( XPDL, Cmd a )
 update msg model =
     case msg of
         JSONMsg jmsg ->
-            jsonUpdate jmsg model
+            jsonUpdate jmsg model.xpdl
 
         FileMsg fmsg ->
-            ( model, File.handleMessage fmsg )
+            ( model.xpdl, File.handleMessage fmsg )
 
         SelectActivity actId _ ->
             let
                 selectOne =
                     modifyAct (\a -> { a | selected = True }) actId
             in
-                ( selectOne <| modifyLoaded deselectAllActivites model, Cmd.none )
+                ( selectOne <| modifyLoaded deselectAllActivites model.xpdl, Cmd.none )
 
         ChangeCurrentProcess newProcId ->
-            case model of
-                Loaded state ->
-                    ( Loaded { state | currentProcess = Just newProcId }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            ( modifyLoaded (\s -> { s | currentProcess = Just newProcId }) model.xpdl, Cmd.none )
 
         DeselectAllActivities ->
-            ( modifyLoaded deselectAllActivites model, Cmd.none )
+            ( modifyLoaded deselectAllActivites model.xpdl, Cmd.none )
+
+        StopDragging ->
+            ( modifyLoaded (addOffsets model.drag) model.xpdl, Cmd.none )
 
         _ ->
-            ( model, Cmd.none )
+            ( model.xpdl, Cmd.none )
 
 
 subscriptions : XPDL -> Sub Msg

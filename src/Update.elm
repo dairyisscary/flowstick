@@ -21,7 +21,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
         ( newXpdl, xpdlCmd ) =
-            X.update msg model.xpdl
+            X.update msg model
 
         ( newDrag, dragCmd ) =
             Drag.update msg model.drag

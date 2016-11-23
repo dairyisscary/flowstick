@@ -1,4 +1,4 @@
-module Visualizer.View exposing (visualizer)
+module Visualizer.View exposing (visualizer, laneDimensions)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
