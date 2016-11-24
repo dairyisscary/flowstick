@@ -90,9 +90,14 @@ computeNewLaneAndCords laneYs dragInfo act =
             else
                 accum
 
-        newLane =
+        sortedLanes =
             List.sortBy Tuple.second laneYs
-                |> List.foldl laneFinder ( act.lane, currentLaneY )
+
+        defaultLaneInfo =
+            List.head sortedLanes |> Maybe.withDefault ( act.lane, currentLaneY )
+
+        newLane =
+            List.foldl laneFinder defaultLaneInfo sortedLanes
     in
         { act
             | x = act.x + dragInfo.diffX |> max 0
