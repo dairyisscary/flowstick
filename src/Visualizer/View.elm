@@ -152,6 +152,31 @@ loadedProcess dragInfo state process =
         laneDims =
             laneDimensions realActs realLanes
 
+        laneWidth =
+            Dict.values laneDims
+                |> List.head
+                |> Maybe.map (.width)
+                |> Maybe.withDefault minLaneHeight
+                |> (+) (2 * leftOffset)
+                |> toString
+
+        laneHeight =
+            Dict.values laneDims
+                |> List.map (.height)
+                |> List.sum
+                |> (+) (2 * topOffset)
+                |> toString
+
+        laneBufferHtml =
+            span
+                [ ns.class [ LaneBuffer ]
+                , style
+                    [ ( "width", laneWidth ++ "px" )
+                    , ( "height", laneHeight ++ "px" )
+                    ]
+                ]
+                []
+
         lanesHtml =
             List.map (\lane -> laneHtml (getLaneDimensionsWithDefault lane.id laneDims) lane) realLanes
 
@@ -159,7 +184,7 @@ loadedProcess dragInfo state process =
             activitiesHtml dragInfo laneDims state.activities process
     in
         [ h1 [ ns.class [ ProcessTitle ] ] [ text process.name ]
-        , div [ ns.class [ Lanes ] ] lanesHtml
+        , div [ ns.class [ Lanes ] ] <| laneBufferHtml :: lanesHtml
         , div [ ns.class [ Visualizer.Styles.Activities ] ] actsHtml
         ]
 

@@ -21,6 +21,7 @@ import Loader.Styles exposing (loaderSize)
 type Class
     = Visualizer
     | Lanes
+    | LaneBuffer
     | SystemLane
     | Activities
     | ProcessTitle
@@ -77,7 +78,7 @@ css =
             , width (px loaderSize)
             , height (px loaderSize)
             , color (rgb 0 100 0)
-            , property "stroke" <| highlightBackground.value
+            , property "stroke" highlightBackground.value
             ]
         , (.) ProcessTitle
             [ position absolute
@@ -94,8 +95,17 @@ css =
                     , border3 (px 1) solid defaultSeparator
                     , position absolute
                     , left (px leftOffset)
+                    , property "z-index" "2"
                     ]
                 ]
+            ]
+        , (.) LaneBuffer
+            [ position absolute
+            , property "content" "''"
+            , display block
+            , top zero
+            , left zero
+            , property "z-index" "1"
             ]
         , (.) Activities
             [ children
@@ -109,12 +119,13 @@ css =
                     , borderRadius (px defaultBorderRadius)
                     , textOverflow ellipsis
                     , overflow hidden
+                    , property "z-index" "3"
                     , padding (px 10)
                     , property "transition" "color 0.1s ease-in-out, background-color 0.1s ease-in-out"
                     , withClass Selected
                         [ color (rgb 255 255 255)
                         , backgroundColor boxForegroundOne
-                        , property "z-index" "1"
+                        , property "z-index" "4"
                         ]
                     ]
                 ]
