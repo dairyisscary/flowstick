@@ -15,4 +15,13 @@ css =
             [ backgroundColor defaultBackground
             , color defaultForeground
             ]
+        , each
+            [ selector ":not(input):not(textarea)"
+            , selector ":not(input):not(textarea)::after"
+            , selector ":not(input):not(textarea)::before"
+            ]
+            [ property "-webkit-user-select" "none"
+            , property "user-select" "none"
+            , cursor default
+            ]
         ]
