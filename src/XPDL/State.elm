@@ -3,6 +3,7 @@ module XPDL.State exposing (XPDL(..), XPDLState)
 import XPDL.Process exposing (Processes, ProcessId)
 import XPDL.Lane exposing (Lanes)
 import XPDL.Activity exposing (Activities)
+import XPDL.Transition exposing (Transitions)
 
 
 type alias XPDLState =
@@ -11,6 +12,7 @@ type alias XPDLState =
     , lanes : Lanes
     , activities : Activities
     , currentProcess : Maybe ProcessId
+    , transitions : Transitions
     }
 
 

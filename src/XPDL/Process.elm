@@ -3,6 +3,7 @@ module XPDL.Process exposing (Processes, Process, ProcessId, processesFromJson)
 import Dict exposing (Dict)
 import XPDL.Lane exposing (Lanes, LaneId)
 import XPDL.Activity exposing (ActivityId)
+import XPDL.Transition exposing (TransitionId)
 import List.Extra exposing (find)
 import XPDL.Extra exposing (createDict)
 import Json.XPDL.Package exposing (Package)
@@ -18,6 +19,7 @@ type alias Process =
     , name : String
     , lanes : List LaneId
     , activities : List ActivityId
+    , transitions : List TransitionId
     }
 
 
@@ -31,19 +33,19 @@ processFromJson package xproc =
         procId =
             xproc.id
 
-        maybePools =
-            find (\p -> p.process == procId) package.pools
-
-        maybeLanes =
-            maybePools |> Maybe.andThen (Just << .lanes)
+        pluckId =
+            List.map .id
 
         lanes =
-            maybeLanes |> Maybe.andThen (Just << List.map .id)
+            find (\p -> p.process == procId) package.pools
+                |> Maybe.map (pluckId << .lanes)
+                |> Maybe.withDefault []
     in
         { id = procId
         , name = xproc.name
-        , lanes = Maybe.withDefault [] lanes
-        , activities = List.map (.id) xproc.activities
+        , lanes = lanes
+        , activities = pluckId xproc.activities
+        , transitions = pluckId xproc.transitions
         }
 
 

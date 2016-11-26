@@ -6,6 +6,7 @@ import State exposing (Msg(..), Model, DragInfo)
 import XPDL.File as File
 import XPDL.Lane exposing (LaneId, lanesFromJson)
 import XPDL.Process exposing (processesFromJson)
+import XPDL.Transition exposing (transitionsFromJson)
 import XPDL.Activity exposing (Activity, ActivityId, activitiesFromJson)
 import Json.XPDL as JX
 import XPDL.State exposing (XPDL(..), XPDLState)
@@ -27,6 +28,7 @@ convertJsonToState jxpdl =
                 , lanes = lanesFromJson package
                 , currentProcess = Nothing
                 , activities = activitiesFromJson package
+                , transitions = transitionsFromJson package
                 }
 
         Err str ->
