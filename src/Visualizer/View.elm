@@ -13,7 +13,7 @@ import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
 import Styles.Namespace exposing (FlowstickNamespace)
 import Loader.View exposing (loader)
-import Drag exposing (onMouseDownStartDragging)
+import Drag exposing (onMouseDownStartDragging, draggingData)
 
 
 type alias LaneDimensions =
@@ -72,18 +72,16 @@ activityHtml dragInfo laneDims act =
         mouseDown =
             onMouseDownStartDragging True act.id
 
-        offset fn =
-            case dragInfo of
-                Dragging info ->
-                    fn info
+        posFn =
+            activityPostion act.selected
 
-                _ ->
-                    0
+        dragOffsetFn =
+            draggingData dragInfo
 
         styles =
             style
-                [ ( "left", activityPostion act.selected (offset .diffX) <| act.x + leftOffset )
-                , ( "top", activityPostion act.selected (offset .diffY) <| act.y + laneDim.y + topOffset )
+                [ ( "left", posFn (dragOffsetFn .diffX 0) <| act.x + leftOffset )
+                , ( "top", posFn (dragOffsetFn .diffY 0) <| act.y + laneDim.y + topOffset )
                 ]
     in
         div [ styles, classes, mouseDown ] [ text (Maybe.withDefault "" act.name) ]

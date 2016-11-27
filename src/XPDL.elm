@@ -11,6 +11,7 @@ import XPDL.Activity exposing (Activity, ActivityId, activitiesFromJson)
 import Json.XPDL as JX
 import XPDL.State exposing (XPDL(..), XPDLState)
 import Visualizer.View exposing (laneDimensions)
+import Drag exposing (draggingData)
 
 
 initialXPDL : XPDL
@@ -83,16 +84,8 @@ computeNewLaneAndCords laneYs dragInfo act =
                 |> Maybe.map Tuple.second
                 |> Maybe.withDefault 0
 
-        offset fn =
-            case dragInfo of
-                Dragging info ->
-                    fn info
-
-                _ ->
-                    0
-
         totalActivityY =
-            act.y + offset .diffY + currentLaneY
+            act.y + draggingData dragInfo .diffY 0 + currentLaneY
 
         laneFinder laneInfo accum =
             if Tuple.second laneInfo < totalActivityY then
@@ -110,7 +103,7 @@ computeNewLaneAndCords laneYs dragInfo act =
             List.foldl laneFinder defaultLaneInfo sortedLanes
     in
         { act
-            | x = act.x + offset .diffX |> max 0
+            | x = act.x + draggingData dragInfo .diffX 0 |> max 0
             , y = totalActivityY - Tuple.second newLane |> max 0
             , lane = Tuple.first newLane
         }

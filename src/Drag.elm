@@ -1,4 +1,4 @@
-module Drag exposing (onMouseDownStartDragging, update, subscriptions, init)
+module Drag exposing (onMouseDownStartDragging, update, subscriptions, init, draggingData)
 
 import State exposing (Msg(..), Model, Point, DragInfo(..))
 import Mouse exposing (ups, moves)
@@ -71,3 +71,17 @@ onMouseDownStartDragging blockPropgation actId =
 decodeMousePosition : Decoder Point
 decodeMousePosition =
     map2 (,) (field "pageX" int) (field "pageY" int)
+
+
+draggingData :
+    DragInfo
+    -> ({ diffX : Int, diffY : Int, start : Point } -> a)
+    -> a
+    -> a
+draggingData dragInfo fn default =
+    case dragInfo of
+        Dragging info ->
+            fn info
+
+        _ ->
+            default
