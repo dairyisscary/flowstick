@@ -1,4 +1,4 @@
-module State exposing (Model, Msg(..), Point, DragInfo)
+module State exposing (Model, Msg(..), Point, DragInfo(..))
 
 import XPDL.State as XS
 import XPDL.File as File
@@ -21,12 +21,13 @@ type Msg
     | Move Point
 
 
-type alias DragInfo =
-    { isDragging : Bool
-    , start : Point
-    , diffX : Int
-    , diffY : Int
-    }
+type DragInfo
+    = NotDragging
+    | Dragging
+        { start : Point
+        , diffX : Int
+        , diffY : Int
+        }
 
 
 type alias Model =

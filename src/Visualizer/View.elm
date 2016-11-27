@@ -7,7 +7,7 @@ import XPDL.Lane exposing (Lanes, Lane, LaneId)
 import XPDL.Process exposing (Process)
 import XPDL.Activity exposing (Activities, Activity)
 import Dict exposing (Dict, get)
-import State exposing (Msg(..), DragInfo)
+import State exposing (Msg(..), DragInfo(Dragging))
 import XPDL.State exposing (XPDLState, XPDL(..))
 import Html.CssHelpers exposing (withNamespace)
 import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
@@ -72,10 +72,18 @@ activityHtml dragInfo laneDims act =
         mouseDown =
             onMouseDownStartDragging True act.id
 
+        offset fn =
+            case dragInfo of
+                Dragging info ->
+                    fn info
+
+                _ ->
+                    0
+
         styles =
             style
-                [ ( "left", activityPostion act.selected dragInfo.diffX <| act.x + leftOffset )
-                , ( "top", activityPostion act.selected dragInfo.diffY <| act.y + laneDim.y + topOffset )
+                [ ( "left", activityPostion act.selected (offset .diffX) <| act.x + leftOffset )
+                , ( "top", activityPostion act.selected (offset .diffY) <| act.y + laneDim.y + topOffset )
                 ]
     in
         div [ styles, classes, mouseDown ] [ text (Maybe.withDefault "" act.name) ]

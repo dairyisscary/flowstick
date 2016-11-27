@@ -2,7 +2,7 @@ module XPDL exposing (initialXPDL, update, subscriptions)
 
 import Dict exposing (update, get, map)
 import List.Extra exposing (find)
-import State exposing (Msg(..), Model, DragInfo)
+import State exposing (Msg(..), Model, DragInfo(Dragging))
 import XPDL.File as File
 import XPDL.Lane exposing (LaneId, lanesFromJson)
 import XPDL.Process exposing (processesFromJson)
@@ -83,8 +83,16 @@ computeNewLaneAndCords laneYs dragInfo act =
                 |> Maybe.map Tuple.second
                 |> Maybe.withDefault 0
 
+        offset fn =
+            case dragInfo of
+                Dragging info ->
+                    fn info
+
+                _ ->
+                    0
+
         totalActivityY =
-            act.y + dragInfo.diffY + currentLaneY
+            act.y + offset .diffY + currentLaneY
 
         laneFinder laneInfo accum =
             if Tuple.second laneInfo < totalActivityY then
@@ -102,7 +110,7 @@ computeNewLaneAndCords laneYs dragInfo act =
             List.foldl laneFinder defaultLaneInfo sortedLanes
     in
         { act
-            | x = act.x + dragInfo.diffX |> max 0
+            | x = act.x + offset .diffX |> max 0
             , y = totalActivityY - Tuple.second newLane |> max 0
             , lane = Tuple.first newLane
         }

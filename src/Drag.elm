@@ -1,6 +1,6 @@
 module Drag exposing (onMouseDownStartDragging, update, subscriptions, init)
 
-import State exposing (Msg(..), Model, Point, DragInfo)
+import State exposing (Msg(..), Model, Point, DragInfo(..))
 import Mouse exposing (ups, moves)
 import Html exposing (Attribute)
 import Html.Events exposing (defaultOptions, onWithOptions)
@@ -10,11 +10,7 @@ import XPDL.Activity exposing (ActivityId)
 
 init : DragInfo
 init =
-    { isDragging = False
-    , start = ( 0, 0 )
-    , diffX = 0
-    , diffY = 0
-    }
+    NotDragging
 
 
 computeDiff : Point -> { x : Int, y : Int } -> Point
@@ -28,11 +24,11 @@ update : State.Msg -> DragInfo -> ( DragInfo, Cmd msg )
 update msg dragInfo =
     case msg of
         SelectActivity _ point ->
-            ( { isDragging = True
-              , start = point
-              , diffX = 0
-              , diffY = 0
-              }
+            ( Dragging
+                { start = point
+                , diffX = 0
+                , diffY = 0
+                }
             , Cmd.none
             )
 
@@ -40,12 +36,12 @@ update msg dragInfo =
             ( init, Cmd.none )
 
         Move ( newX, newY ) ->
-            -- Check to make sure we're dragging. Sometimes some Move messages
-            -- come after StopDragging has been issued.
-            if dragInfo.isDragging then
-                ( { dragInfo | diffX = newX, diffY = newY }, Cmd.none )
-            else
-                ( dragInfo, Cmd.none )
+            case dragInfo of
+                Dragging info ->
+                    ( Dragging { info | diffX = newX, diffY = newY }, Cmd.none )
+
+                _ ->
+                    ( dragInfo, Cmd.none )
 
         _ ->
             ( dragInfo, Cmd.none )
@@ -53,13 +49,15 @@ update msg dragInfo =
 
 subscriptions : DragInfo -> Sub Msg
 subscriptions dragInfo =
-    if dragInfo.isDragging then
-        Sub.batch
-            [ moves (Move << computeDiff dragInfo.start)
-            , ups (\_ -> StopDragging)
-            ]
-    else
-        Sub.none
+    case dragInfo of
+        Dragging info ->
+            Sub.batch
+                [ moves (Move << computeDiff info.start)
+                , ups (\_ -> StopDragging)
+                ]
+
+        _ ->
+            Sub.none
 
 
 onMouseDownStartDragging : Bool -> ActivityId -> Attribute Msg
