@@ -6,11 +6,12 @@ import Html.Events exposing (onMouseDown)
 import XPDL.Lane exposing (Lanes, Lane, LaneId)
 import XPDL.Process exposing (Process)
 import XPDL.Activity exposing (Activities, Activity)
+import XPDL.Transition exposing (Transitions, Transition)
 import Dict exposing (Dict, get)
 import State exposing (Msg(..), DragInfo(Dragging))
 import XPDL.State exposing (XPDLState, XPDL(..))
 import Html.CssHelpers exposing (withNamespace)
-import Visualizer.Styles exposing (Class(..), namespaceId, activityHeight, activityWidth, leftOffset, topOffset)
+import Visualizer.Styles exposing (..)
 import Styles.Namespace exposing (FlowstickNamespace)
 import Loader.View exposing (loader)
 import Drag exposing (onMouseDownStartDragging, draggingData)
@@ -48,41 +49,41 @@ laneHtml laneDims lane =
         [ text lane.name ]
 
 
-activityPostion : Bool -> number -> number -> String
-activityPostion selected dragOffset position =
+activityPosition : DragInfo -> Dict LaneId LaneDimensions -> Activity -> { top : Int, left : Int }
+activityPosition dragInfo laneDims act =
     let
-        pos =
-            if selected then
-                dragOffset + position
+        laneDim =
+            getLaneDimensionsWithDefault act.lane laneDims
+
+        addDragOffset fn position =
+            if act.selected then
+                draggingData dragInfo fn 0 + position
             else
                 position
+
+        left =
+            addDragOffset .diffX (act.x + leftOffset)
+
+        top =
+            addDragOffset .diffY (act.y + laneDim.y + topOffset)
     in
-        toString pos ++ "px"
+        { top = top, left = left }
 
 
 activityHtml : DragInfo -> Dict LaneId LaneDimensions -> Activity -> Html State.Msg
 activityHtml dragInfo laneDims act =
     let
-        laneDim =
-            getLaneDimensionsWithDefault act.lane laneDims
-
         classes =
             ns.classList [ ( Selected, act.selected ) ]
 
         mouseDown =
             onMouseDownStartDragging True act.id
 
-        posFn =
-            activityPostion act.selected
-
-        dragOffsetFn =
-            draggingData dragInfo
+        pos =
+            activityPosition dragInfo laneDims act
 
         styles =
-            style
-                [ ( "left", posFn (dragOffsetFn .diffX 0) <| act.x + leftOffset )
-                , ( "top", posFn (dragOffsetFn .diffY 0) <| act.y + laneDim.y + topOffset )
-                ]
+            style [ ( "left", toString pos.left ++ "px" ), ( "top", toString pos.top ++ "px" ) ]
     in
         div [ styles, classes, mouseDown ] [ text (Maybe.withDefault "" act.name) ]
 
@@ -90,10 +91,71 @@ activityHtml dragInfo laneDims act =
 activitiesHtml : DragInfo -> Dict LaneId LaneDimensions -> Activities -> Process -> List (Html State.Msg)
 activitiesHtml dragInfo laneDims acts currentProcess =
     let
+        htmlGen =
+            activityHtml dragInfo laneDims
+
         actHtml actId =
-            get actId acts |> Maybe.map (activityHtml dragInfo laneDims)
+            get actId acts |> Maybe.map htmlGen
     in
-        List.map actHtml currentProcess.activities |> List.filterMap identity
+        List.filterMap actHtml currentProcess.activities
+
+
+computeSegment : Int -> Int -> Int -> Int -> { left : Float, top : Float, width : Float, angle : Float }
+computeSegment x1 y1 x2 y2 =
+    let
+        length =
+            sqrt << toFloat <| (x2 - x1) ^ 2 + (y2 - y1) ^ 2
+
+        left =
+            toFloat (x1 + x2) / 2 - length / 2
+
+        top =
+            toFloat (y1 + y2) / 2 - transitionThickness / 2
+
+        angle =
+            atan2 (toFloat (y1 - y2)) (toFloat (x1 - x2)) * (180 / pi)
+    in
+        { left = left, top = top, width = length, angle = angle }
+
+
+transitionHtml : DragInfo -> Activities -> Dict LaneId LaneDimensions -> Transition -> Html State.Msg
+transitionHtml dragInfo acts laneDims trans =
+    let
+        point fn =
+            get (fn trans) acts
+                |> Maybe.map (activityPosition dragInfo laneDims)
+                |> Maybe.withDefault { left = 0, top = 0 }
+
+        fromPoint =
+            point .from
+
+        toPoint =
+            point .to
+
+        pos =
+            computeSegment fromPoint.left fromPoint.top toPoint.left toPoint.top
+
+        styles =
+            style
+                [ ( "left", toString pos.left ++ "px" )
+                , ( "top", toString pos.top ++ "px" )
+                , ( "width", toString pos.width ++ "px" )
+                , ( "transform", "rotate(" ++ toString pos.angle ++ "deg)" )
+                ]
+    in
+        div [ styles ] []
+
+
+transistionsHtml : DragInfo -> Dict LaneId LaneDimensions -> XPDLState -> Process -> List (Html State.Msg)
+transistionsHtml dragInfo laneDims state currentProcess =
+    let
+        htmlGen =
+            transitionHtml dragInfo state.activities laneDims
+
+        transHtml transId =
+            get transId state.transitions |> Maybe.map htmlGen
+    in
+        List.filterMap transHtml currentProcess.transitions
 
 
 getLaneDimensionsWithDefault : LaneId -> Dict LaneId LaneDimensions -> LaneDimensions
@@ -188,10 +250,14 @@ loadedProcess dragInfo state process =
 
         actsHtml =
             activitiesHtml dragInfo laneDims state.activities process
+
+        transHtml =
+            transistionsHtml dragInfo laneDims state process
     in
         [ h1 [ ns.class [ ProcessTitle ] ] [ text process.name ]
         , div [ ns.class [ Lanes ] ] <| laneBufferHtml :: lanesHtml
         , div [ ns.class [ Visualizer.Styles.Activities ] ] actsHtml
+        , div [ ns.class [ Transitions ] ] transHtml
         ]
 
 

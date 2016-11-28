@@ -7,6 +7,7 @@ module Visualizer.Styles
         , activityWidth
         , leftOffset
         , topOffset
+        , transitionThickness
         )
 
 import Css exposing (..)
@@ -20,6 +21,7 @@ import Loader.Styles exposing (loaderSize)
 
 type Class
     = Visualizer
+    | Transitions
     | Lanes
     | LaneBuffer
     | SystemLane
@@ -52,6 +54,11 @@ leftOffset =
 topOffset : number
 topOffset =
     95
+
+
+transitionThickness : number
+transitionThickness =
+    2
 
 
 semiBoxForegroundOne : Color
@@ -104,6 +111,16 @@ css =
             , top zero
             , left zero
             , property "z-index" "1"
+            ]
+        , (.) Transitions
+            [ children
+                [ div
+                    [ height (px transitionThickness)
+                    , backgroundColor semiBoxForegroundOne
+                    , position absolute
+                    , property "z-index" "3"
+                    ]
+                ]
             ]
         , (.) Activities
             [ children
