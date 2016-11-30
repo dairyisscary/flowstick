@@ -17,6 +17,10 @@ import Loader.View exposing (loader)
 import Drag exposing (onMouseDownStartDragging, draggingData)
 
 
+type alias Position =
+    { top : Float, left : Float }
+
+
 type alias LaneDimensions =
     { y : Int, height : Int, width : Int }
 
@@ -49,7 +53,7 @@ laneHtml laneDims lane =
         [ text lane.name ]
 
 
-activityPosition : DragInfo -> Dict LaneId LaneDimensions -> Activity -> { top : Int, left : Int }
+activityPosition : DragInfo -> Dict LaneId LaneDimensions -> Activity -> Position
 activityPosition dragInfo laneDims act =
     let
         laneDim =
@@ -67,7 +71,7 @@ activityPosition dragInfo laneDims act =
         top =
             addDragOffset .diffY (act.y + laneDim.y + topOffset)
     in
-        { top = top, left = left }
+        { top = toFloat top, left = toFloat left }
 
 
 activityHtml : DragInfo -> Dict LaneId LaneDimensions -> Activity -> Html State.Msg
@@ -100,20 +104,20 @@ activitiesHtml dragInfo laneDims acts currentProcess =
         List.filterMap actHtml currentProcess.activities
 
 
-computeSegment : Int -> Int -> Int -> Int -> { left : Float, top : Float, width : Float, angle : Float }
+computeSegment : Float -> Float -> Float -> Float -> { left : Float, top : Float, width : Float, angle : Float }
 computeSegment x1 y1 x2 y2 =
     let
         length =
-            sqrt << toFloat <| (x2 - x1) ^ 2 + (y2 - y1) ^ 2
+            sqrt <| (x2 - x1) ^ 2 + (y2 - y1) ^ 2
 
         left =
-            toFloat (x1 + x2) / 2 - length / 2
+            (x1 + x2) / 2 - length / 2
 
         top =
-            toFloat (y1 + y2) / 2 - transitionThickness / 2
+            (y1 + y2) / 2 - transitionThickness / 2
 
         angle =
-            atan2 (toFloat (y1 - y2)) (toFloat (x1 - x2)) * (180 / pi)
+            atan2 (y1 - y2) (x1 - x2) * (180 / pi)
     in
         { left = left, top = top, width = length, angle = angle }
 
