@@ -122,12 +122,18 @@ computeSegment x1 y1 x2 y2 =
         { left = left, top = top, width = length, angle = angle }
 
 
+centerActivityPosition : Position -> Position
+centerActivityPosition pos =
+    { top = pos.top + activityHeight / 2, left = pos.left + activityWidth / 2 }
+
+
 transitionHtml : DragInfo -> Activities -> Dict LaneId LaneDimensions -> Transition -> Html State.Msg
 transitionHtml dragInfo acts laneDims trans =
     let
         point fn =
             get (fn trans) acts
                 |> Maybe.map (activityPosition dragInfo laneDims)
+                |> Maybe.map centerActivityPosition
                 |> Maybe.withDefault { left = 0, top = 0 }
 
         fromPoint =
