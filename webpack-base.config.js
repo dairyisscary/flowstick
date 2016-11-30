@@ -7,10 +7,6 @@ module.exports = {
   target: 'electron',
   module: {
     loaders: [{
-      test: /\.elm$/,
-      loaders: ['elm-hot', 'elm-webpack'],
-      exclude: [/elm-stuff/, /node_modules/, $styleSheetModule],
-    }, {
       test: /\.html$/,
       exclude: /node_modules/,
       loader: 'file?name=[name].[ext]',

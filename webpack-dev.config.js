@@ -6,6 +6,10 @@ function mod(baseConfig) {
       loaders: baseConfig.module.loaders.concat([{
         test: baseConfig.$styleSheetModule,
         loaders: ['style', 'css', 'elm-css-webpack'],
+      }, {
+        test: /\.elm$/,
+        loaders: ['elm-hot', 'elm-webpack'],
+        exclude: [/elm-stuff/, /node_modules/, baseConfig.$styleSheetModule],
       }]),
     }),
     output: Object.assign(baseConfig.output, {
