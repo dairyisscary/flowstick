@@ -127,25 +127,26 @@ centerActivityPosition pos =
     { top = pos.top + activityHeight / 2, left = pos.left + activityWidth / 2 }
 
 
-transitionHtml : DragInfo -> Activities -> Dict LaneId LaneDimensions -> Transition -> Html State.Msg
+transitionHtml :
+    DragInfo
+    -> Activities
+    -> Dict LaneId LaneDimensions
+    -> Transition
+    -> Maybe (Html State.Msg)
 transitionHtml dragInfo acts laneDims trans =
     let
         point fn =
             get (fn trans) acts
                 |> Maybe.map (activityPosition dragInfo laneDims)
                 |> Maybe.map centerActivityPosition
-                |> Maybe.withDefault { left = 0, top = 0 }
 
-        fromPoint =
-            point .from
+        maybePosition =
+            Maybe.map2
+                (\t f -> computeSegment f.left f.top t.left t.top)
+                (point .from)
+                (point .to)
 
-        toPoint =
-            point .to
-
-        pos =
-            computeSegment fromPoint.left fromPoint.top toPoint.left toPoint.top
-
-        styles =
+        styles pos =
             style
                 [ ( "left", toString pos.left ++ "px" )
                 , ( "top", toString pos.top ++ "px" )
@@ -153,7 +154,7 @@ transitionHtml dragInfo acts laneDims trans =
                 , ( "transform", "rotate(" ++ toString pos.angle ++ "deg)" )
                 ]
     in
-        div [ styles ] []
+        Maybe.map (\pos -> div [ styles pos ] []) maybePosition
 
 
 transistionsHtml : DragInfo -> Dict LaneId LaneDimensions -> XPDLState -> Process -> List (Html State.Msg)
@@ -163,7 +164,7 @@ transistionsHtml dragInfo laneDims state currentProcess =
             transitionHtml dragInfo state.activities laneDims
 
         transHtml transId =
-            get transId state.transitions |> Maybe.map htmlGen
+            get transId state.transitions |> Maybe.andThen htmlGen
     in
         List.filterMap transHtml currentProcess.transitions
 
