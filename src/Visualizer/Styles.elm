@@ -116,7 +116,7 @@ css =
             [ children
                 [ div
                     [ height (px transitionThickness)
-                    , backgroundColor semiBoxForegroundOne
+                    , backgroundColor highlightBackground
                     , position absolute
                     , property "z-index" "3"
                     ]
