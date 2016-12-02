@@ -20,16 +20,13 @@ type alias Transition =
     , name : Maybe String
     , to : ActivityId
     , from : ActivityId
+    , anchors : List { x : Int, y : Int }
     }
 
 
 transitionFromJson : JTrans.Transition -> Transition
-transitionFromJson jtrans =
-    { id = jtrans.id
-    , name = jtrans.name
-    , to = jtrans.to
-    , from = jtrans.from
-    }
+transitionFromJson =
+    identity
 
 
 transitionsFromJson : Package -> Transitions
