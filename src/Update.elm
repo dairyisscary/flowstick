@@ -1,5 +1,6 @@
 module Update exposing (init, update, subscriptions)
 
+import History exposing (History, compose, initializeHistory)
 import State exposing (Msg(..), Model)
 import XPDL as X
 import Drag
@@ -12,13 +13,18 @@ initialModel =
     }
 
 
-init : ( Model, Cmd Msg )
+initialHistoryModel : History Model
+initialHistoryModel =
+    initializeHistory initialModel
+
+
+init : ( History Model, Cmd Msg )
 init =
-    ( initialModel, Cmd.none )
+    ( initialHistoryModel, Cmd.none )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+presentUpdate : Msg -> Model -> ( Model, Cmd Msg )
+presentUpdate msg model =
     let
         ( newXpdl, xpdlCmd ) =
             X.update msg model
@@ -31,9 +37,19 @@ update msg model =
         )
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
+update : Msg -> History Model -> ( History Model, Cmd Msg )
+update =
+    compose presentUpdate
+
+
+presentSubscriptions : Model -> Sub Msg
+presentSubscriptions model =
     Sub.batch
         [ X.subscriptions model.xpdl
         , Drag.subscriptions model.drag
         ]
+
+
+subscriptions : History Model -> Sub Msg
+subscriptions history =
+    presentSubscriptions history.present
