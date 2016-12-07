@@ -37,9 +37,19 @@ presentUpdate msg model =
         )
 
 
+excludeFromHistory : Msg -> Bool
+excludeFromHistory msg =
+    case msg of
+        StopDragging ->
+            True
+
+        _ ->
+            False
+
+
 update : Msg -> History Model -> ( History Model, Cmd Msg )
 update =
-    compose presentUpdate
+    compose excludeFromHistory presentUpdate
 
 
 presentSubscriptions : Model -> Sub Msg

@@ -13,14 +13,18 @@ initializeHistory val =
     { past = [], present = val, future = [] }
 
 
-compose : (a -> b -> ( b, c )) -> a -> History b -> ( History b, c )
-compose update msg history =
+compose : (a -> Bool) -> (a -> b -> ( b, c )) -> a -> History b -> ( History b, c )
+compose filter update msg history =
     let
         ( newPresent, cmd ) =
             update msg history.present
 
         newHistory =
-            { past = history.present :: history.past
+            { past =
+                if filter msg then
+                    history.present :: history.past
+                else
+                    history.past
             , present = newPresent
             , future = []
             }
