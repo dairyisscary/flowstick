@@ -19,6 +19,7 @@ type Msg
     | SelectActivity ActivityId Point
     | StopDragging
     | Move Point
+    | Undo
 
 
 type DragInfo

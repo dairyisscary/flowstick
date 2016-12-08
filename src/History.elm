@@ -1,5 +1,7 @@
 module History exposing (History, compose, initializeHistory)
 
+import State exposing (Msg(Undo))
+
 
 type alias History a =
     { past : List a
@@ -13,8 +15,18 @@ initializeHistory val =
     { past = [], present = val, future = [] }
 
 
-compose : (a -> Bool) -> (a -> b -> ( b, c )) -> a -> History b -> ( History b, c )
+compose : (Msg -> Bool) -> (Msg -> b -> ( b, Cmd msg )) -> Msg -> History b -> ( History b, Cmd msg )
 compose filter update msg history =
+    case msg of
+        Undo ->
+            ( undo history, Cmd.none )
+
+        _ ->
+            passthrough filter update msg history
+
+
+passthrough : (Msg -> Bool) -> (Msg -> b -> ( b, Cmd msg )) -> Msg -> History b -> ( History b, Cmd msg )
+passthrough filter update msg history =
     let
         ( newPresent, cmd ) =
             update msg history.present
@@ -30,3 +42,16 @@ compose filter update msg history =
             }
     in
         ( newHistory, cmd )
+
+
+undo : History a -> History a
+undo oldHist =
+    case oldHist.past of
+        x :: xs ->
+            { past = xs
+            , present = x
+            , future = oldHist.present :: oldHist.future
+            }
+
+        _ ->
+            oldHist
