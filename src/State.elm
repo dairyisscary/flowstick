@@ -20,6 +20,7 @@ type Msg
     | StopDragging
     | Move Point
     | Undo
+    | Redo
 
 
 type DragInfo

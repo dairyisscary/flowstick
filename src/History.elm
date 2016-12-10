@@ -1,6 +1,6 @@
 module History exposing (History, compose, initializeHistory)
 
-import State exposing (Msg(Undo))
+import State exposing (Msg(Undo, Redo))
 
 
 type alias History a =
@@ -20,6 +20,9 @@ compose filter update msg history =
     case msg of
         Undo ->
             ( undo history, Cmd.none )
+
+        Redo ->
+            ( redo history, Cmd.none )
 
         _ ->
             passthrough filter update msg history
@@ -51,6 +54,19 @@ undo oldHist =
             { past = xs
             , present = x
             , future = oldHist.present :: oldHist.future
+            }
+
+        _ ->
+            oldHist
+
+
+redo : History a -> History a
+redo oldHist =
+    case oldHist.future of
+        x :: xs ->
+            { past = oldHist.present :: oldHist.past
+            , present = x
+            , future = xs
             }
 
         _ ->
