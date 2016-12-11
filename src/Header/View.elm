@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Events exposing (onClick)
 import Html.CssHelpers exposing (withNamespace)
 import XPDL.File exposing (Msg(..))
-import State exposing (Model, Msg(FileMsg, Undo))
+import State exposing (Model, Msg(FileMsg, Undo, Redo))
 import Styles.Icons exposing (IconSize(Small), icon)
 import Header.Styles exposing (Class(..), namespaceId)
 import Styles.Namespace exposing (FlowstickNamespace)
@@ -25,6 +25,7 @@ buttons model =
     ul []
         [ li [ onClick <| FileMsg OpenFileDialog ] [ icon "folder open" Small ]
         , li [ onClick Undo ] [ icon "undo" Small ]
+        , li [ onClick Redo ] [ icon "redo" Small ]
         ]
 
 
