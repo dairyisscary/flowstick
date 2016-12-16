@@ -37,8 +37,21 @@ presentUpdate msg model =
         )
 
 
-excludeFromHistory : Msg -> Bool
-excludeFromHistory msg =
+includeHistoryMessage : Msg -> Bool
+includeHistoryMessage msg =
+    case msg of
+        Move _ ->
+            False
+
+        SelectActivity _ _ ->
+            False
+
+        _ ->
+            True
+
+
+includeMessage : Msg -> Bool
+includeMessage msg =
     case msg of
         StopDragging ->
             True
@@ -49,7 +62,7 @@ excludeFromHistory msg =
 
 update : Msg -> History Model -> ( History Model, Cmd Msg )
 update =
-    compose excludeFromHistory presentUpdate
+    compose includeHistoryMessage includeMessage presentUpdate
 
 
 presentSubscriptions : Model -> Sub Msg

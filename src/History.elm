@@ -7,16 +7,27 @@ type alias History a =
     { past : List a
     , present : a
     , future : List a
+    , lastInterestingPresent : Maybe a
     }
 
 
 initializeHistory : a -> History a
 initializeHistory val =
-    { past = [], present = val, future = [] }
+    { past = []
+    , present = val
+    , future = []
+    , lastInterestingPresent = Nothing
+    }
 
 
-compose : (Msg -> Bool) -> (Msg -> b -> ( b, Cmd msg )) -> Msg -> History b -> ( History b, Cmd msg )
-compose filter update msg history =
+compose :
+    (Msg -> Bool)
+    -> (Msg -> Bool)
+    -> (Msg -> b -> ( b, Cmd msg ))
+    -> Msg
+    -> History b
+    -> ( History b, Cmd msg )
+compose historyFilter msgFilter update msg history =
     case msg of
         Undo ->
             ( undo history, Cmd.none )
@@ -25,23 +36,43 @@ compose filter update msg history =
             ( redo history, Cmd.none )
 
         _ ->
-            passthrough filter update msg history
+            passthrough historyFilter msgFilter update msg history
 
 
-passthrough : (Msg -> Bool) -> (Msg -> b -> ( b, Cmd msg )) -> Msg -> History b -> ( History b, Cmd msg )
-passthrough filter update msg history =
+passthrough :
+    (Msg -> Bool)
+    -> (Msg -> Bool)
+    -> (Msg -> b -> ( b, Cmd msg ))
+    -> Msg
+    -> History b
+    -> ( History b, Cmd msg )
+passthrough historyFilter msgFilter update msg history =
     let
         ( newPresent, cmd ) =
             update msg history.present
 
+        oldLastInterest =
+            history.lastInterestingPresent
+
+        shouldAddPast =
+            -- Only add to history if we have an interesting present to add
+            -- and its not the same as the last past state
+            -- and it passses the msgFilter
+            oldLastInterest /= Nothing && oldLastInterest /= List.head history.past && msgFilter msg
+
         newHistory =
             { past =
-                if filter msg then
-                    history.present :: history.past
+                if shouldAddPast then
+                    Maybe.withDefault newPresent oldLastInterest :: history.past
                 else
                     history.past
             , present = newPresent
             , future = []
+            , lastInterestingPresent =
+                if historyFilter msg then
+                    Just newPresent
+                else
+                    oldLastInterest
             }
     in
         ( newHistory, cmd )
@@ -54,6 +85,7 @@ undo oldHist =
             { past = xs
             , present = x
             , future = oldHist.present :: oldHist.future
+            , lastInterestingPresent = oldHist.lastInterestingPresent
             }
 
         _ ->
@@ -67,6 +99,7 @@ redo oldHist =
             { past = oldHist.present :: oldHist.past
             , present = x
             , future = xs
+            , lastInterestingPresent = oldHist.lastInterestingPresent
             }
 
         _ ->
