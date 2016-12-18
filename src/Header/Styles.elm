@@ -51,6 +51,7 @@ css =
                 , li
                     [ marginLeft (px 20)
                     , width (px smallIconWidth)
+                    , overflow hidden
                     , children
                         [ selector "i"
                             [ cursor pointer ]
