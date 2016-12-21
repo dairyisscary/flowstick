@@ -3,6 +3,7 @@ module Header.View exposing (header, headerClasses)
 import Html exposing (..)
 import Html.Events exposing (onClick)
 import Html.CssHelpers exposing (withNamespace)
+import History exposing (History)
 import XPDL.File exposing (Msg(..))
 import State exposing (Model, Msg(FileMsg, Undo, Redo))
 import Styles.Icons exposing (IconSize(Small), icon)
@@ -20,8 +21,8 @@ headerClasses =
     ns.class [ Header ]
 
 
-buttons : Model -> Html State.Msg
-buttons model =
+buttons : History Model -> Html State.Msg
+buttons history =
     ul []
         [ li [ onClick <| FileMsg OpenFileDialog ] [ icon "folder open" Small ]
         , li [ onClick Undo ] [ icon "undo" Small ]
@@ -29,21 +30,21 @@ buttons model =
         ]
 
 
-titleAndControls : Model -> Html State.Msg
-titleAndControls model =
+titleAndControls : History Model -> Html State.Msg
+titleAndControls history =
     div [ ns.class [ TitleAndControls ] ]
         [ h1 [] [ text "Flowstick" ]
-        , buttons model
+        , buttons history
         ]
 
 
-searchBar : Model -> Html State.Msg
-searchBar model =
+searchBar : Html State.Msg
+searchBar =
     div [ ns.class [ SearchBar ] ] [ text "" ]
 
 
-header : Model -> List (Html State.Msg)
-header model =
-    [ titleAndControls model
-    , searchBar model
+header : History Model -> List (Html State.Msg)
+header history =
+    [ titleAndControls history
+    , searchBar
     ]
