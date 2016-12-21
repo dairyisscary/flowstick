@@ -13,6 +13,7 @@ type Class
     = Header
     | TitleAndControls
     | SearchBar
+    | DisabledButton
 
 
 namespaceId : Namespace
@@ -55,6 +56,13 @@ css =
                     , children
                         [ selector "i"
                             [ cursor pointer ]
+                        ]
+                    , withClass DisabledButton
+                        [ disabledOpacity
+                        , children
+                            [ selector "i"
+                                [ cursor default ]
+                            ]
                         ]
                     ]
                 ]

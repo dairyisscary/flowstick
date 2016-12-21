@@ -23,11 +23,24 @@ headerClasses =
 
 buttons : History Model -> Html State.Msg
 buttons history =
-    ul []
-        [ li [ onClick <| FileMsg OpenFileDialog ] [ icon "folder open" Small ]
-        , li [ onClick Undo ] [ icon "undo" Small ]
-        , li [ onClick Redo ] [ icon "redo" Small ]
-        ]
+    let
+        undoAttrs =
+            if List.isEmpty history.past then
+                [ ns.class [ DisabledButton ] ]
+            else
+                [ onClick Undo ]
+
+        redoAttrs =
+            if List.isEmpty history.future then
+                [ ns.class [ DisabledButton ] ]
+            else
+                [ onClick Redo ]
+    in
+        ul []
+            [ li [ onClick <| FileMsg OpenFileDialog ] [ icon "folder open" Small ]
+            , li undoAttrs [ icon "undo" Small ]
+            , li redoAttrs [ icon "redo" Small ]
+            ]
 
 
 titleAndControls : History Model -> Html State.Msg

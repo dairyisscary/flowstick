@@ -13,6 +13,11 @@ defaultForeground =
     rgb 255 255 255
 
 
+disabledOpacity : Mixin
+disabledOpacity =
+    opacity (num 0.5)
+
+
 offBackground : Color
 offBackground =
     rgb 34 51 71
