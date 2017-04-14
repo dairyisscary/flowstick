@@ -42,8 +42,6 @@
   },
   "devDependencies": {
     "electron-debug": "1.1.0",
-    "elm-hot-loader": "0.4.2",
-    "webpack-dev-middleware": "1.8.4",
     "webpack-dev-server": "1.16.2"
   }
 }

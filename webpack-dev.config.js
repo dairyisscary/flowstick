@@ -8,7 +8,7 @@ function mod(baseConfig) {
         loaders: ['style', 'css', 'elm-css-webpack'],
       }, {
         test: /\.elm$/,
-        loaders: ['elm-hot', 'elm-webpack'],
+        loaders: ['elm-webpack'],
         exclude: [/elm-stuff/, /node_modules/, baseConfig.$styleSheetModule],
       }]),
     }),
