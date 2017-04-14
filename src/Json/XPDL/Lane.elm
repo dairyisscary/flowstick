@@ -1,7 +1,7 @@
 module Json.XPDL.Lane exposing (Lanes, Lane, LaneId, lanesDecoder)
 
-import Json.Decode exposing (Decoder, string, list)
-import Json.Decode.Pipeline exposing (decode, optional, required)
+import Json.Decode exposing (..)
+import Json.Decode.Maybe exposing (maybeWithDefault)
 import Json.Decode.XML exposing (listOfOne)
 import Json.XPDL.Performer exposing (performerDecoder, Performer)
 
@@ -27,24 +27,23 @@ type alias Lanes =
 
 laneAttrDecoder : Decoder LaneAttributes
 laneAttrDecoder =
-    decode (\id name -> { id = id, name = name })
-        |> required "Id" string
-        |> optional "Name" string ""
+    map2 LaneAttributes
+        (field "Id" string)
+        (maybeWithDefault "" (field "Name" string))
 
 
 makeLaneFromDecode : LaneAttributes -> Performer -> Lane
-makeLaneFromDecode attrs =
-    Lane attrs.id attrs.name
+makeLaneFromDecode { id, name } =
+    Lane id name
 
 
 laneDecoder : Decoder Lane
 laneDecoder =
-    decode makeLaneFromDecode
-        |> required "$" laneAttrDecoder
-        |> optional "xpdl:Performers" (listOfOne performerDecoder) ""
+    map2 makeLaneFromDecode
+        (field "$" laneAttrDecoder)
+        (maybeWithDefault "" (field "xpdl:Performers" (listOfOne performerDecoder)))
 
 
 lanesDecoder : Decoder Lanes
 lanesDecoder =
-    decode identity
-        |> optional "xpdl:Lane" (list laneDecoder) []
+    maybeWithDefault [] (field "xpdl:Lane" (list laneDecoder))

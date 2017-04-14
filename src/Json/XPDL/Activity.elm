@@ -1,9 +1,9 @@
 module Json.XPDL.Activity exposing (Activities, Activity, activitiesDecoder)
 
 import Json.XPDL.Lane exposing (LaneId)
-import Json.Decode exposing (Decoder, list, string, at, map2, nullable)
+import Json.Decode exposing (..)
+import Json.Decode.Maybe exposing (maybeWithDefault)
 import Json.Decode.XML exposing (listOfOne, intFromString)
-import Json.Decode.Pipeline exposing (decode, optional, required)
 
 
 type alias ActivityId =
@@ -28,6 +28,10 @@ type alias Activity =
     }
 
 
+type alias ActivityAttributes =
+    { id : String, name : Maybe String }
+
+
 makeGraphicsInfoFromDecode : ( LaneId, { x : Int, y : Int } ) -> ActivityGraphicsInfo
 makeGraphicsInfoFromDecode ( lane, { x, y } ) =
     { lane = lane, x = x, y = y }
@@ -36,47 +40,42 @@ makeGraphicsInfoFromDecode ( lane, { x, y } ) =
 activityGraphicsDecoder : Decoder ActivityGraphicsInfo
 activityGraphicsDecoder =
     let
-        attrsDecoder =
-            decode identity
-                |> required "LaneId" string
-
         cordsDecoder =
             map2 (\x y -> { x = x, y = y })
                 (at [ "$", "XCoordinate" ] intFromString)
                 (at [ "$", "YCoordinate" ] intFromString)
 
         singleDecoder =
-            decode (,)
-                |> required "$" attrsDecoder
-                |> required "xpdl:Coordinates" (listOfOne cordsDecoder)
+            map2 (,)
+                (at [ "$", "LaneId" ] string)
+                (field "xpdl:Coordinates" (listOfOne cordsDecoder))
     in
-        decode makeGraphicsInfoFromDecode
-            |> required "xpdl:NodeGraphicsInfo" (listOfOne singleDecoder)
+        map makeGraphicsInfoFromDecode
+            (field "xpdl:NodeGraphicsInfo" (listOfOne singleDecoder))
 
 
 activityAttributesDecoder : Decoder { id : String, name : Maybe String }
 activityAttributesDecoder =
-    decode (\id mn -> { id = id, name = mn })
-        |> required "Id" string
-        |> optional "Name" (nullable string) Nothing
+    map2 ActivityAttributes
+        (field "Id" string)
+        (maybe (field "Name" string))
 
 
 makeActivityFromDecode :
-    { id : String, name : Maybe String }
+    ActivityAttributes
     -> ActivityGraphicsInfo
     -> Activity
-makeActivityFromDecode attrs =
-    Activity attrs.id attrs.name
+makeActivityFromDecode { id, name } =
+    Activity id name
 
 
 activityDecoder : Decoder Activity
 activityDecoder =
-    decode makeActivityFromDecode
-        |> required "$" activityAttributesDecoder
-        |> required "xpdl:NodeGraphicsInfos" (listOfOne activityGraphicsDecoder)
+    map2 makeActivityFromDecode
+        (field "$" activityAttributesDecoder)
+        (field "xpdl:NodeGraphicsInfos" (listOfOne activityGraphicsDecoder))
 
 
 activitiesDecoder : Decoder Activities
 activitiesDecoder =
-    decode identity
-        |> optional "xpdl:Activity" (list activityDecoder) []
+    maybeWithDefault [] (field "xpdl:Activity" (list activityDecoder))

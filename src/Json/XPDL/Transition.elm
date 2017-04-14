@@ -1,8 +1,8 @@
 module Json.XPDL.Transition exposing (Transition, Transitions, TransitionId, transitionsDecoder)
 
-import Json.Decode exposing (Decoder, field, maybe, at, index, list, string, nullable)
+import Json.Decode exposing (..)
+import Json.Decode.Maybe exposing (maybeWithDefault)
 import Json.Decode.XML exposing (listOfOne)
-import Json.Decode.Pipeline exposing (decode, optional, required, hardcoded)
 
 
 type alias Anchors =
@@ -18,7 +18,7 @@ type alias Transition =
     }
 
 
-type alias TransitionAttrs =
+type alias TransitionAttributes =
     { id : TransitionId
     , name : Maybe String
     , to : String
@@ -32,20 +32,6 @@ type alias Transitions =
 
 type alias TransitionId =
     String
-
-
-transitionAttributesDecoder : Decoder TransitionAttrs
-transitionAttributesDecoder =
-    decode TransitionAttrs
-        |> required "Id" string
-        |> optional "Name" (nullable string) Nothing
-        |> required "To" string
-        |> required "From" string
-
-
-makeTransitions : TransitionAttrs -> Anchors -> Transition
-makeTransitions attrs =
-    Transition attrs.id attrs.name attrs.to attrs.from
 
 
 anchorDecoder : Decoder (Maybe { x : Int, y : Int })
@@ -65,27 +51,44 @@ anchorDecoder =
 
                 _ ->
                     Nothing
+
+        cordinateDecoder : String -> Decoder (Maybe String)
+        cordinateDecoder propName =
+            maybe (index 0 (at [ "$", propName ] string))
     in
-        decode makeAnchor
-            |> optional "$" (maybe (field "Style" string)) Nothing
-            |> optional "xpdl:Coordinates" (maybe (index 0 (at [ "$", "XCoordinate" ] string))) Nothing
-            |> optional "xpdl:Coordinates" (maybe (index 0 (at [ "$", "YCoordinate" ] string))) Nothing
+        map3 makeAnchor
+            (maybeWithDefault Nothing (field "$" (maybe (field "Style" string))))
+            (maybeWithDefault Nothing (field "xpdl:Coordinates" <| cordinateDecoder "XCoordinate"))
+            (maybeWithDefault Nothing (field "xpdl:Coordinates" <| cordinateDecoder "YCoordinate"))
 
 
 anchorsDecoder : Decoder Anchors
 anchorsDecoder =
-    decode (List.filterMap identity)
-        |> optional "xpdl:ConnectorGraphicsInfo" (list anchorDecoder) []
+    map (List.filterMap identity)
+        (maybeWithDefault [] (field "xpdl:ConnectorGraphicsInfo" (list anchorDecoder)))
+
+
+transitionAttributesDecoder : Decoder TransitionAttributes
+transitionAttributesDecoder =
+    map4 TransitionAttributes
+        (field "Id" string)
+        (maybe (field "Name" string))
+        (field "To" string)
+        (field "From" string)
+
+
+makeTransitions : TransitionAttributes -> Anchors -> Transition
+makeTransitions { id, name, to, from } =
+    Transition id name to from
 
 
 transitionDecoder : Decoder Transition
 transitionDecoder =
-    decode makeTransitions
-        |> required "$" transitionAttributesDecoder
-        |> optional "xpdl:ConnectorGraphicsInfos" (listOfOne anchorsDecoder) []
+    map2 makeTransitions
+        (field "$" transitionAttributesDecoder)
+        (maybeWithDefault [] (field "xpdl:ConnectorGraphicsInfos" (listOfOne anchorsDecoder)))
 
 
 transitionsDecoder : Decoder Transitions
 transitionsDecoder =
-    decode identity
-        |> optional "xpdl:Transition" (list transitionDecoder) []
+    maybeWithDefault [] (field "xpdl:Transition" (list transitionDecoder))

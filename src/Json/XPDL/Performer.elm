@@ -1,19 +1,14 @@
 module Json.XPDL.Performer exposing (performerDecoder, Performer)
 
-import Json.Decode exposing (Decoder, string, list)
-import Json.Decode.Pipeline exposing (decode, optional)
+import Json.Decode exposing (..)
+import Json.Decode.Maybe exposing (maybeWithDefault)
+import Json.Decode.XML exposing (listOfOne)
 
 
 type alias Performer =
     String
 
 
-makePerformerFromDecode : List Performer -> Performer
-makePerformerFromDecode =
-    Maybe.withDefault "" << List.head
-
-
 performerDecoder : Decoder Performer
 performerDecoder =
-    decode makePerformerFromDecode
-        |> optional "xpdl:Performer" (list string) []
+    maybeWithDefault "" (field "xpdl:Performer" (listOfOne string))

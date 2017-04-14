@@ -39,7 +39,7 @@ decodeXPDL json =
     let
         decoder : Decoder Package
         decoder =
-            field "xpdl:Package" (packageDecoder json)
+            field "xpdl:Package" packageDecoder
     in
         decodeString decoder json
 

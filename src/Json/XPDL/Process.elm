@@ -1,8 +1,8 @@
 module Json.XPDL.Process exposing (Processes, Process, ProcessId, processesDecoder)
 
-import Json.Decode exposing (Decoder, list, nullable, string)
-import Json.Decode.Pipeline exposing (decode, optional, required)
+import Json.Decode exposing (..)
 import Json.Decode.XML exposing (listOfOne)
+import Json.Decode.Maybe exposing (maybeWithDefault)
 import Json.XPDL.Activity exposing (Activities, activitiesDecoder)
 import Json.XPDL.Transition exposing (Transitions, transitionsDecoder)
 
@@ -19,42 +19,40 @@ type alias Process =
     }
 
 
+type alias ProcessAttributes =
+    { id : String
+    , name : String
+    }
+
+
 type alias Processes =
     List Process
 
 
 processAttributesDecoder : Decoder { id : String, name : String }
 processAttributesDecoder =
-    decode (\id name -> { id = id, name = name })
-        |> required "Id" string
-        |> optional "Name" string ""
+    map2 ProcessAttributes
+        (field "Id" string)
+        (maybeWithDefault "" (field "Name" string))
 
 
 makeProcessFromDecode :
-    { id : String, name : String }
-    -> Maybe Activities
-    -> Maybe Transitions
+    ProcessAttributes
+    -> Activities
+    -> Transitions
     -> Process
-makeProcessFromDecode attrs maybeActs maybeTrans =
-    let
-        acts =
-            Maybe.withDefault [] maybeActs
-
-        trans =
-            Maybe.withDefault [] maybeTrans
-    in
-        Process attrs.id attrs.name acts trans
+makeProcessFromDecode { id, name } =
+    Process id name
 
 
 processDecoder : Decoder Process
 processDecoder =
-    decode makeProcessFromDecode
-        |> required "$" processAttributesDecoder
-        |> optional "xpdl:Activities" (nullable (listOfOne activitiesDecoder)) Nothing
-        |> optional "xpdl:Transitions" (nullable (listOfOne transitionsDecoder)) Nothing
+    map3 makeProcessFromDecode
+        (field "$" processAttributesDecoder)
+        (maybeWithDefault [] (field "xpdl:Activities" (listOfOne activitiesDecoder)))
+        (maybeWithDefault [] (field "xpdl:Transitions" (listOfOne transitionsDecoder)))
 
 
 processesDecoder : Decoder Processes
 processesDecoder =
-    decode identity
-        |> optional "xpdl:WorkflowProcess" (list processDecoder) []
+    maybeWithDefault [] (field "xpdl:WorkflowProcess" (list processDecoder))
