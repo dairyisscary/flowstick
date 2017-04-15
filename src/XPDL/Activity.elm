@@ -1,10 +1,10 @@
 module XPDL.Activity exposing (Activities, Activity, ActivityId, activitiesFromJson)
 
-import XPDL.Lane exposing (LaneId)
-import XPDL.Extra exposing (createDict)
 import Dict exposing (Dict)
-import Json.XPDL.Package exposing (Package)
-import Json.XPDL.Activity as JAct
+import Json.Decode.Xpdl.Activity as JAct
+import Json.Decode.Xpdl.Package exposing (Package)
+import XPDL.Extra exposing (createDict)
+import XPDL.Lane exposing (LaneId)
 
 
 type alias Activity =

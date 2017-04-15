@@ -1,4 +1,4 @@
-module Json.XPDL.Transition exposing (Transition, Transitions, TransitionId, transitionsDecoder)
+module Json.Decode.Xpdl.Transition exposing (Transition, Transitions, TransitionId, transitionsDecoder)
 
 import Json.Decode exposing (..)
 import Json.Decode.Maybe exposing (maybeWithDefault)

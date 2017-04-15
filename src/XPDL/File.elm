@@ -1,6 +1,6 @@
 port module XPDL.File exposing (Model, Msg(..), handleMessage, subscriptions)
 
-import Json.XPDL as JX
+import Json.Decode.Xpdl as JDX
 
 
 type Msg
@@ -25,6 +25,6 @@ handleMessage msg =
             openFileDialog ()
 
 
-subscriptions : Sub JX.Msg
+subscriptions : Sub JDX.Msg
 subscriptions =
-    recieveFilenameFromDialog JX.ReadXPDL
+    recieveFilenameFromDialog JDX.ReadXPDL

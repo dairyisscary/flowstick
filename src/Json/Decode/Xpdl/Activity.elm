@@ -1,9 +1,9 @@
-module Json.XPDL.Activity exposing (Activities, Activity, activitiesDecoder)
+module Json.Decode.Xpdl.Activity exposing (Activities, Activity, activitiesDecoder)
 
-import Json.XPDL.Lane exposing (LaneId)
 import Json.Decode exposing (..)
 import Json.Decode.Maybe exposing (maybeWithDefault)
 import Json.Decode.XML exposing (listOfOne, intFromString)
+import Json.Decode.Xpdl.Lane exposing (LaneId)
 
 
 type alias ActivityId =

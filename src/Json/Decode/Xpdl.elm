@@ -1,7 +1,7 @@
-port module Json.XPDL exposing (XPDL, Msg(ReadXPDL), handleMessage, subscriptions)
+port module Json.Decode.Xpdl exposing (XPDL, Msg(ReadXPDL), handleMessage, subscriptions)
 
 import Json.Decode exposing (Decoder, decodeString, field)
-import Json.XPDL.Package exposing (Package, packageDecoder)
+import Json.Decode.Xpdl.Package exposing (Package, packageDecoder)
 
 
 type alias XPDL =

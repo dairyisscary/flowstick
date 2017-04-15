@@ -1,10 +1,10 @@
 module State exposing (Model, Msg(..), Point, DragInfo(..))
 
-import XPDL.State as XS
+import Json.Decode.Xpdl as JDX
+import XPDL.Activity exposing (ActivityId)
 import XPDL.File as File
 import XPDL.Process exposing (ProcessId)
-import XPDL.Activity exposing (ActivityId)
-import Json.XPDL as JX
+import XPDL.State as XS
 
 
 type alias Point =
@@ -12,7 +12,7 @@ type alias Point =
 
 
 type Msg
-    = JSONMsg JX.Msg
+    = JSONMsg JDX.Msg
     | FileMsg File.Msg
     | ChangeCurrentProcess ProcessId
     | DeselectAllActivities

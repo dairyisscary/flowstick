@@ -1,4 +1,4 @@
-module Json.XPDL.Performer exposing (performerDecoder, Performer)
+module Json.Decode.Xpdl.Performer exposing (performerDecoder, Performer)
 
 import Json.Decode exposing (..)
 import Json.Decode.Maybe exposing (maybeWithDefault)

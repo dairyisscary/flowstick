@@ -1,17 +1,17 @@
 module XPDL exposing (initialXPDL, update, subscriptions)
 
 import Dict exposing (update, get, map)
+import Drag exposing (draggingData)
+import Json.Decode.Xpdl as JDX
 import List.Extra exposing (find)
 import State exposing (Msg(..), Model, DragInfo(Dragging))
+import Visualizer.View exposing (laneDimensions)
+import XPDL.Activity exposing (Activity, ActivityId, activitiesFromJson)
 import XPDL.File as File
 import XPDL.Lane exposing (LaneId, lanesFromJson)
 import XPDL.Process exposing (processesFromJson)
-import XPDL.Transition exposing (transitionsFromJson)
-import XPDL.Activity exposing (Activity, ActivityId, activitiesFromJson)
-import Json.XPDL as JX
 import XPDL.State exposing (XPDL(..), XPDLState)
-import Visualizer.View exposing (laneDimensions)
-import Drag exposing (draggingData)
+import XPDL.Transition exposing (transitionsFromJson)
 
 
 initialXPDL : XPDL
@@ -19,7 +19,7 @@ initialXPDL =
     NotLoaded
 
 
-convertJsonToState : JX.XPDL -> XPDL
+convertJsonToState : JDX.XPDL -> XPDL
 convertJsonToState jxpdl =
     case jxpdl of
         Ok package ->
@@ -36,11 +36,11 @@ convertJsonToState jxpdl =
             ErrorLoad str
 
 
-jsonUpdate : JX.Msg -> XPDL -> ( XPDL, Cmd a )
+jsonUpdate : JDX.Msg -> XPDL -> ( XPDL, Cmd a )
 jsonUpdate msg model =
     let
         ( jsonXpdl, jsonCmd ) =
-            JX.handleMessage msg
+            JDX.handleMessage msg
 
         newXpdl =
             Maybe.withDefault Loading (jsonXpdl |> Maybe.andThen (Just << convertJsonToState))
@@ -169,6 +169,6 @@ update msg model =
 subscriptions : XPDL -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Sub.map JSONMsg JX.subscriptions
+        [ Sub.map JSONMsg JDX.subscriptions
         , Sub.map JSONMsg File.subscriptions
         ]
