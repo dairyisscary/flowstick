@@ -2,6 +2,7 @@ module Loader.Styles exposing (Class(..), css, namespaceId, keyframes, loaderSiz
 
 import Styles.Namespace exposing (Namespace(Loader))
 import Css exposing (..)
+import Css.Elements exposing (svg, circle)
 import Css.Namespace exposing (namespace)
 
 
@@ -22,12 +23,12 @@ loaderSize =
 css : Stylesheet
 css =
     (stylesheet << namespace namespaceId)
-        [ (.) Loader
+        [ class Loader
             [ position relative
             , height (px loaderSize)
             , width (px loaderSize)
             , descendants
-                [ selector "svg"
+                [ svg
                     [ position absolute
                     , top zero
                     , left zero
@@ -39,7 +40,7 @@ css =
                     , property "animation" "rotate 2s linear infinite"
                     , property "transform-origin" "center center"
                     ]
-                , selector "circle"
+                , Css.Elements.circle
                     [ property "stroke-dasharray" "1, 200"
                     , property "stroke-dashoffset" "0"
                     , property "stroke-linecap" "round"

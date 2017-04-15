@@ -69,12 +69,12 @@ semiBoxForegroundOne =
 css : Stylesheet
 css =
     (stylesheet << namespace namespaceId)
-        [ (.) Visualizer
+        [ class Visualizer
             [ overflow auto
             , position relative
             , columnMixin
             ]
-        , (.) Loader
+        , class Loader
             [ position absolute
             , top (pct 50)
             , left (pct 50)
@@ -85,15 +85,15 @@ css =
             , color (rgb 0 100 0)
             , property "stroke" highlightBackground.value
             ]
-        , (.) ProcessTitle
+        , class ProcessTitle
             [ position absolute
             , top (px defaultPadding)
             , fontSize (px 35)
             , left (px leftOffset)
             ]
-        , (.) SystemLane
+        , class SystemLane
             [ fontStyle italic ]
-        , (.) Lanes
+        , class Lanes
             [ children
                 [ div
                     [ backgroundColor offBackground
@@ -104,7 +104,7 @@ css =
                     ]
                 ]
             ]
-        , (.) LaneBuffer
+        , class LaneBuffer
             [ position absolute
             , property "content" "''"
             , display block
@@ -112,7 +112,7 @@ css =
             , left zero
             , property "z-index" "1"
             ]
-        , (.) Transitions
+        , class Transitions
             [ children
                 [ div
                     [ height (px transitionThickness)
@@ -122,7 +122,7 @@ css =
                     ]
                 ]
             ]
-        , (.) Activities
+        , class Activities
             [ children
                 [ div
                     [ height (px activityHeight)

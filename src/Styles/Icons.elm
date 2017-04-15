@@ -10,7 +10,7 @@ module Styles.Icons
         )
 
 import Html exposing (Html, i, text)
-import Html.Attributes exposing (class)
+import Html.Attributes as HA
 import Css exposing (..)
 import Css.Namespace exposing (namespace)
 import Styles.Namespace exposing (Namespace(Icons))
@@ -45,23 +45,23 @@ largeIconWidth =
 
 icon : String -> IconSize -> Html msg
 icon iconName size =
-    i [ class ("material-icons Icons" ++ toString size) ]
+    i [ HA.class ("material-icons Icons" ++ toString size) ]
         [ Html.text iconName ]
 
 
 css : Stylesheet
 css =
     (stylesheet << namespace Icons)
-        [ (.) XSmall
+        [ class XSmall
             [ fontSize (px xSmallIconWidth)
             ]
-        , (.) Small
+        , class Small
             [ fontSize (px smallIconWidth)
             ]
-        , (.) Normal
+        , class Normal
             [ fontSize (px iconWidth)
             ]
-        , (.) Large
+        , class Large
             [ fontSize (px largeIconWidth)
             ]
         ]

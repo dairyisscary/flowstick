@@ -45,19 +45,19 @@ columnMixin =
 css : Stylesheet
 css =
     (stylesheet << namespace Grid)
-        [ (.) Columns
+        [ class Columns
             [ columnsMixin ]
-        , (.) VerticalColumns
+        , class VerticalColumns
             [ withClass Columns
                 [ flexDirection column ]
             ]
-        , (.) Column
+        , class Column
             [ columnMixin ]
-        , (.) FullSize
+        , class FullSize
             [ width (pct 100)
             , height (pct 100)
             ]
-        , (.) ViewSize
+        , class ViewSize
             [ width (vw 100)
             , height (vh 100)
             ]

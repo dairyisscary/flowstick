@@ -21,7 +21,7 @@ toolboxWidth =
 css : Stylesheet
 css =
     (stylesheet << namespace Styles.Namespace.Toolbox)
-        [ (.) Toolbox
+        [ class Toolbox
             [ width (px toolboxWidth)
             , backgroundColor darkBackground
             , vertColumnsMixin

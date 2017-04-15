@@ -64,7 +64,7 @@ resetSnippets =
         , form
         , label
         , legend
-        , table
+        , Css.Elements.table
         , caption
         , tbody
         , tfoot
@@ -119,7 +119,7 @@ resetSnippets =
         [ property "content" ""
         , property "content" "none"
         ]
-    , table
+    , Css.Elements.table
         [ property "border-collapse" "collapse"
         , property "border-spacing" "0"
         ]

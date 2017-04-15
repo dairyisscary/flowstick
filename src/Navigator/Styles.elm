@@ -16,7 +16,7 @@ type Class
 css : Stylesheet
 css =
     (stylesheet << namespace Styles.Namespace.Navigator)
-        [ (.) Navigator
+        [ class Navigator
             [ width (px (leftHandTotalWidth - toolboxWidth))
             , padding (px defaultPadding)
             , borderRight3 (px 1) solid brightSeparator
@@ -26,7 +26,7 @@ css =
                     , color offForeground
                     , cursor pointer
                     ]
-                , (.) CurrentProcess
+                , class CurrentProcess
                     [ color defaultForeground ]
                 ]
             ]

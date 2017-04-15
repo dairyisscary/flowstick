@@ -29,12 +29,12 @@ headerHeight =
 css : Stylesheet
 css =
     (stylesheet << namespace namespaceId)
-        [ (.) Header
+        [ class Header
             [ height (px headerHeight)
             , backgroundColor highlightBackground
             , columnsMixin
             ]
-        , (.) TitleAndControls
+        , class TitleAndControls
             [ columnsMixin
             , alignItems center
             , width (px leftHandTotalWidth)
@@ -67,7 +67,7 @@ css =
                     ]
                 ]
             ]
-        , (.) SearchBar
+        , class SearchBar
             [ columnMixin
             ]
         ]
