@@ -1,10 +1,16 @@
-port module Json.Decode.Xpdl exposing (XPDL, Msg(ReadXPDL), handleMessage, subscriptions)
+port module Json.Decode.Xpdl
+    exposing
+        ( XPDLResult
+        , Msg(ReadXPDL)
+        , handleMessage
+        , subscriptions
+        )
 
-import Json.Decode exposing (Decoder, decodeString, field)
+import Json.Decode exposing (Decoder, Value, decodeValue, field)
 import Json.Decode.Xpdl.Package exposing (Package, packageDecoder)
 
 
-type alias XPDL =
+type alias XPDLResult =
     Result String Package
 
 
@@ -14,13 +20,13 @@ type alias Filename =
 
 type alias ReadResult =
     { error : Maybe String
-    , result : Maybe String
+    , result : Value
     }
 
 
 type Msg
     = ReadXPDL Filename
-    | LoadXPDL XPDL
+    | LoadXPDL XPDLResult
 
 
 port readXPDL : Filename -> Cmd msg
@@ -29,39 +35,24 @@ port readXPDL : Filename -> Cmd msg
 port jsonXPDL : (ReadResult -> msg) -> Sub msg
 
 
-defaultXPDLError : String
-defaultXPDLError =
-    "Error reading XPDL!"
-
-
-decodeXPDL : String -> XPDL
-decodeXPDL json =
-    let
-        decoder : Decoder Package
-        decoder =
-            field "xpdl:Package" packageDecoder
-    in
-        decodeString decoder json
+decodeXPDL : Value -> XPDLResult
+decodeXPDL =
+    decodeValue <| field "xpdl:Package" packageDecoder
 
 
 decodeReadResult : ReadResult -> Msg
-decodeReadResult readRes =
+decodeReadResult { error, result } =
     let
         portRes =
-            if readRes.error /= Nothing then
-                Err (Maybe.withDefault defaultXPDLError readRes.error)
-            else if readRes.result /= Nothing then
-                Ok (Maybe.withDefault "" readRes.result)
+            if error /= Nothing then
+                Err (Maybe.withDefault "Error reading XPDL!" error)
             else
-                Err defaultXPDLError
-
-        loadedXPDL =
-            portRes |> Result.andThen decodeXPDL
+                Ok result
     in
-        LoadXPDL loadedXPDL
+        LoadXPDL <| Result.andThen decodeXPDL portRes
 
 
-handleMessage : Msg -> ( Maybe XPDL, Cmd a )
+handleMessage : Msg -> ( Maybe XPDLResult, Cmd a )
 handleMessage msg =
     case msg of
         ReadXPDL fn ->

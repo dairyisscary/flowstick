@@ -19,7 +19,7 @@ initialXPDL =
     NotLoaded
 
 
-convertJsonToState : JDX.XPDL -> XPDL
+convertJsonToState : JDX.XPDLResult -> XPDL
 convertJsonToState jxpdl =
     case jxpdl of
         Ok package ->
