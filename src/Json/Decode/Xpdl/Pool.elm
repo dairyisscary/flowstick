@@ -2,7 +2,7 @@ module Json.Decode.Xpdl.Pool exposing (Pools, Pool, poolsDecoder)
 
 import Json.Decode exposing (..)
 import Json.Decode.Maybe exposing (maybeWithDefault)
-import Json.Decode.XML exposing (listOfOne)
+import Json.Decode.Xml exposing (listOfOne)
 import Json.Decode.Xpdl.Lane exposing (Lanes, lanesDecoder)
 import Json.Decode.Xpdl.Process exposing (ProcessId)
 

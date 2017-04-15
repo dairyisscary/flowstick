@@ -2,7 +2,7 @@ module Json.Decode.Xpdl.Performer exposing (performerDecoder, Performer)
 
 import Json.Decode exposing (..)
 import Json.Decode.Maybe exposing (maybeWithDefault)
-import Json.Decode.XML exposing (listOfOne)
+import Json.Decode.Xml exposing (listOfOne)
 
 
 type alias Performer =

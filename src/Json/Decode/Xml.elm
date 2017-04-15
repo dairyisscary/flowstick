@@ -1,4 +1,4 @@
-module Json.Decode.XML exposing (listOfOne, intFromString)
+module Json.Decode.Xml exposing (listOfOne, intFromString)
 
 import String exposing (toInt)
 import Json.Decode as JD

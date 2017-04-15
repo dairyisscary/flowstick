@@ -2,7 +2,7 @@ module Json.Decode.Xpdl.Activity exposing (Activities, Activity, activitiesDecod
 
 import Json.Decode exposing (..)
 import Json.Decode.Maybe exposing (maybeWithDefault)
-import Json.Decode.XML exposing (listOfOne, intFromString)
+import Json.Decode.Xml exposing (listOfOne, intFromString)
 import Json.Decode.Xpdl.Lane exposing (LaneId)
 
 

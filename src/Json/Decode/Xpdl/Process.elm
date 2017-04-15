@@ -2,7 +2,7 @@ module Json.Decode.Xpdl.Process exposing (Processes, Process, ProcessId, process
 
 import Json.Decode exposing (..)
 import Json.Decode.Maybe exposing (maybeWithDefault)
-import Json.Decode.XML exposing (listOfOne)
+import Json.Decode.Xml exposing (listOfOne)
 import Json.Decode.Xpdl.Activity exposing (Activities, activitiesDecoder)
 import Json.Decode.Xpdl.Transition exposing (Transitions, transitionsDecoder)
 
