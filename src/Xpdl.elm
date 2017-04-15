@@ -1,4 +1,4 @@
-module XPDL exposing (initialXPDL, update, subscriptions)
+module Xpdl exposing (initialXPDL, update, subscriptions)
 
 import Dict exposing (update, get, map)
 import Drag exposing (draggingData)
@@ -6,12 +6,12 @@ import Json.Decode.Xpdl as JDX
 import List.Extra exposing (find)
 import State exposing (Msg(..), Model, DragInfo(Dragging))
 import Visualizer.View exposing (laneDimensions)
-import XPDL.Activity exposing (Activity, ActivityId, activitiesFromJson)
-import XPDL.File as File
-import XPDL.Lane exposing (LaneId, lanesFromJson)
-import XPDL.Process exposing (processesFromJson)
-import XPDL.State exposing (XPDL(..), XPDLState)
-import XPDL.Transition exposing (transitionsFromJson)
+import Xpdl.Activity exposing (Activity, ActivityId, activitiesFromJson)
+import Xpdl.File as File
+import Xpdl.Lane exposing (LaneId, lanesFromJson)
+import Xpdl.Process exposing (processesFromJson)
+import Xpdl.State exposing (XPDL(..), XPDLState)
+import Xpdl.Transition exposing (transitionsFromJson)
 
 
 initialXPDL : XPDL

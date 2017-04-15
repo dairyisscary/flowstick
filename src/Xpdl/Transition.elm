@@ -1,10 +1,10 @@
-module XPDL.Transition exposing (Transitions, Transition, TransitionId, transitionsFromJson)
+module Xpdl.Transition exposing (Transitions, Transition, TransitionId, transitionsFromJson)
 
 import Dict exposing (Dict)
 import Json.Decode.Xpdl.Package exposing (Package)
 import Json.Decode.Xpdl.Transition as JTrans
-import XPDL.Activity exposing (ActivityId)
-import XPDL.Extra exposing (createDict)
+import Xpdl.Activity exposing (ActivityId)
+import Xpdl.Extra exposing (createDict)
 
 
 type alias TransitionId =

@@ -1,4 +1,4 @@
-port module XPDL.File exposing (Model, Msg(..), handleMessage, subscriptions)
+port module Xpdl.File exposing (Model, Msg(..), handleMessage, subscriptions)
 
 import Json.Decode.Xpdl as JDX
 

@@ -1,14 +1,14 @@
 module Header.View exposing (header, headerClasses)
 
-import Html exposing (..)
-import Html.Events exposing (onClick)
-import Html.CssHelpers exposing (withNamespace)
+import Header.Styles exposing (Class(..), namespaceId)
 import History exposing (History)
-import XPDL.File exposing (Msg(..))
+import Html exposing (..)
+import Html.CssHelpers exposing (withNamespace)
+import Html.Events exposing (onClick)
 import State exposing (Model, Msg(FileMsg, Undo, Redo))
 import Styles.Icons exposing (IconSize(Small), icon)
-import Header.Styles exposing (Class(..), namespaceId)
 import Styles.Namespace exposing (FlowstickNamespace)
+import Xpdl.File exposing (Msg(..))
 
 
 ns : FlowstickNamespace Header.Styles.Class id State.Msg

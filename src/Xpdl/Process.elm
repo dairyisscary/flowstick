@@ -1,13 +1,13 @@
-module XPDL.Process exposing (Processes, Process, ProcessId, processesFromJson)
+module Xpdl.Process exposing (Processes, Process, ProcessId, processesFromJson)
 
 import Dict exposing (Dict)
 import Json.Decode.Xpdl.Package exposing (Package)
 import Json.Decode.Xpdl.Process as XProc
 import List.Extra exposing (find)
-import XPDL.Activity exposing (ActivityId)
-import XPDL.Extra exposing (createDict)
-import XPDL.Lane exposing (Lanes, LaneId)
-import XPDL.Transition exposing (TransitionId)
+import Xpdl.Activity exposing (ActivityId)
+import Xpdl.Extra exposing (createDict)
+import Xpdl.Lane exposing (Lanes, LaneId)
+import Xpdl.Transition exposing (TransitionId)
 
 
 type alias ProcessId =

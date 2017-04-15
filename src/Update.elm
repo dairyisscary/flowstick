@@ -2,7 +2,7 @@ module Update exposing (init, update, subscriptions)
 
 import History exposing (History, compose, initializeHistory)
 import State exposing (Msg(..), Model)
-import XPDL as X
+import Xpdl as X
 import Drag
 
 

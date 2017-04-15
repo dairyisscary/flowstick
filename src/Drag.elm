@@ -1,11 +1,11 @@
 module Drag exposing (onMouseDownStartDragging, update, subscriptions, init, draggingData)
 
-import State exposing (Msg(..), Model, Point, DragInfo(..))
-import Mouse exposing (ups, moves)
 import Html exposing (Attribute)
 import Html.Events exposing (defaultOptions, onWithOptions)
 import Json.Decode as Json exposing (Decoder, field, map, int, map2)
-import XPDL.Activity exposing (ActivityId)
+import Mouse exposing (ups, moves)
+import State exposing (Msg(..), Model, Point, DragInfo(..))
+import Xpdl.Activity exposing (ActivityId)
 
 
 init : DragInfo

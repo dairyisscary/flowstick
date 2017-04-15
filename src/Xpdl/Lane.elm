@@ -1,10 +1,9 @@
-module XPDL.Lane exposing (Lanes, Lane, LaneId, Performer, lanesFromJson)
+module Xpdl.Lane exposing (Lanes, Lane, LaneId, Performer, lanesFromJson)
 
 import Dict exposing (..)
 import Json.Decode.Xpdl.Package exposing (Package)
 import Json.Decode.Xpdl.Pool exposing (Pools)
-import XPDL.Extra exposing (createDict)
-import XPDL.Extra exposing (createDict)
+import Xpdl.Extra exposing (createDict)
 
 
 type alias Performer =

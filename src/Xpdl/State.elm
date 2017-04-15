@@ -1,9 +1,9 @@
-module XPDL.State exposing (XPDL(..), XPDLState)
+module Xpdl.State exposing (XPDL(..), XPDLState)
 
-import XPDL.Process exposing (Processes, ProcessId)
-import XPDL.Lane exposing (Lanes)
-import XPDL.Activity exposing (Activities)
-import XPDL.Transition exposing (Transitions)
+import Xpdl.Activity exposing (Activities)
+import Xpdl.Lane exposing (Lanes)
+import Xpdl.Process exposing (Processes, ProcessId)
+import Xpdl.Transition exposing (Transitions)
 
 
 type alias XPDLState =

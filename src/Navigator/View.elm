@@ -1,14 +1,14 @@
 module Navigator.View exposing (navigator)
 
+import Dict exposing (get)
 import Html exposing (..)
+import Html.CssHelpers exposing (withNamespace)
 import Html.Events exposing (onClick)
+import Navigator.Styles exposing (Class(..))
 import State exposing (Msg(ChangeCurrentProcess), Model)
 import Styles.Namespace exposing (Namespace(Navigator), FlowstickNamespace)
-import Navigator.Styles exposing (Class(..))
-import Html.CssHelpers exposing (withNamespace)
-import XPDL.State exposing (XPDLState, XPDL(Loaded))
-import XPDL.Process exposing (ProcessId)
-import Dict exposing (get)
+import Xpdl.Process exposing (ProcessId)
+import Xpdl.State exposing (XPDLState, XPDL(Loaded))
 
 
 ns : FlowstickNamespace Class id msg

@@ -1,4 +1,4 @@
-module XPDL.Extra exposing (createDict)
+module Xpdl.Extra exposing (createDict)
 
 import Dict exposing (Dict, fromList)
 

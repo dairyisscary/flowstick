@@ -1,10 +1,10 @@
 module State exposing (Model, Msg(..), Point, DragInfo(..))
 
 import Json.Decode.Xpdl as JDX
-import XPDL.Activity exposing (ActivityId)
-import XPDL.File as File
-import XPDL.Process exposing (ProcessId)
-import XPDL.State as XS
+import Xpdl.Activity exposing (ActivityId)
+import Xpdl.File as File
+import Xpdl.Process exposing (ProcessId)
+import Xpdl.State as XS
 
 
 type alias Point =
