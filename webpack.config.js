@@ -1,25 +1,28 @@
 'use strict';
 const path = require('path');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
 
-const constants = {
+const constants = Object.freeze({
   styleSheetModule: /\/src\/Stylesheets\.elm$/,
-};
+  nodeModulesDir: path.join(__dirname, 'node_modules'),
+});
 
 const base = {
-  target: 'electron',
+  target: 'electron-main',
   module: {
-    loaders: [{
-      test: /\.html$/,
-      exclude: /node_modules/,
-      loader: 'file?name=[name].[ext]',
-    }],
+    noParse: /^(?!.*Stylesheets\.elm$).*\.elm$/,
+  },
+  resolve: {
+    modules: [path.join(__dirname, 'src'), constants.nodeModulesDir],
   },
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js',
   },
-  entry: ['./src/index'],
-  plugins: [],
+  entry: path.join(__dirname, 'src/index.js'),
+  plugins: [
+    new HTMLWebpackPlugin({ template: 'src/index.ejs', inject: 'body' }),
+  ],
 };
 
 let configModifier;

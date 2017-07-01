@@ -8,39 +8,37 @@
     "email": "idealeric@gmail.com"
   },
   "license": "MIT",
-  "main": "index.js",
   "scripts": {
     "run": "cross-env NODE_ENV=production electron ./",
-    "run-dev": "cross-env NODE_ENV=development HOT=1 electron ./",
+    "run-dev": "cross-env NODE_ENV=development electron http://localhost:3010/",
     "build": "cross-env NODE_ENV=production webpack",
-    "build-dev": "cross-env NODE_ENV=development webpack-dev-server --port 3000 --hot --inline",
-    "dev": "concurrently --kill-others \"yarn run build-dev\" \"yarn run run-dev\""
-  },
-  "bin": {
-    "electron": "./node_modules/.bin/electron"
+    "build-dev": "cross-env NODE_ENV=development webpack-dev-server --port 3010",
+    "dev": "concurrently -n \"webpack,electron\" -p \"{name}-{time}\" -t \"HH:mm:ss.SSS\" --kill-others \"yarn run build-dev\" \"yarn run run-dev\""
   },
   "devEngines": {
-    "node": "7.x"
+    "node": "8.x"
   },
   "dependencies": {
-    "concurrently": "^3.4.0",
-    "cross-env": "^4.0.0",
-    "css-loader": "^0.28.0",
-    "electron": "^1.6.2",
+    "concurrently": "^3.5.0",
+    "cross-env": "^5.0.1",
+    "css-loader": "^0.28.4",
+    "electron": "^1.6.11",
     "elm": "0.18.0",
-    "elm-css": "0.6.0",
+    "elm-css": "^0.6.1",
     "elm-css-webpack-loader": "^3.1.0",
-    "elm-webpack-loader": "^4.3.0",
-    "extract-text-webpack-plugin": "1.0.1",
-    "file-loader": "^0.11.1",
+    "elm-webpack-loader": "^4.3.1",
+    "extract-text-webpack-plugin": "^2.1.2",
+    "file-loader": "^0.11.2",
+    "html-webpack-plugin": "^2.29.0",
     "material-design-icons": "3.0.1",
     "rxjs": "^5.3.0",
-    "style-loader": "^0.16.1",
-    "webpack": "1.13.3",
+    "style-loader": "^0.18.2",
+    "webpack": "^3.0.0",
+    "webpack-merge": "^4.1.0",
     "xml2js": "0.4.17"
   },
   "devDependencies": {
-    "electron-debug": "1.1.0",
-    "webpack-dev-server": "1.16.2"
+    "electron-debug": "^1.2.0",
+    "webpack-dev-server": "^2.5.0"
   }
 }

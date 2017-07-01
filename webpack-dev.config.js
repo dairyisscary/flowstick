@@ -1,20 +1,31 @@
 'use strict';
+const path = require('path');
+const webpack = require('webpack');
+const merge = require('webpack-merge');
 
-function mod(baseConfig, { styleSheetModule }) {
-  return Object.assign(baseConfig, {
-    module: Object.assign(baseConfig.module, {
-      loaders: baseConfig.module.loaders.concat([{
+function mod(baseConfig, { styleSheetModule, nodeModulesDir }) {
+  return merge(baseConfig, {
+    module: {
+      rules: [{
         test: styleSheetModule,
-        loaders: ['style', 'css', 'elm-css-webpack'],
+        use: ['style-loader', 'css-loader', 'elm-css-webpack-loader'],
       }, {
         test: /\.elm$/,
-        loaders: ['elm-webpack'],
         exclude: [/elm-stuff/, /node_modules/, styleSheetModule],
-      }]),
-    }),
-    output: Object.assign(baseConfig.output, {
-      publicPath: 'http://localhost:3000/dist/',
-    }),
+        use: [{
+          loader: 'elm-webpack-loader',
+          options: {
+            cwd: __dirname,
+            pathToMake: path.join(nodeModulesDir, '.bin/elm-make'),
+            forceWatch: true,
+          },
+        }],
+      }],
+    },
+    devServer: {
+      inline: true,
+      stats: 'minimal',
+    },
   });
 }
 

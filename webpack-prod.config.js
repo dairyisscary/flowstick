@@ -1,20 +1,22 @@
 'use strict';
-const extractTextPlugin = require('extract-text-webpack-plugin');
-const cssExtract = new extractTextPlugin('styles.css');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const merge = require('webpack-merge');
 
 function mod(baseConfig, { styleSheetModule }) {
-  return Object.assign(baseConfig, {
-    module: Object.assign(baseConfig.module, {
-      loaders: baseConfig.module.loaders.concat([{
+  return merge(baseConfig, {
+    module: {
+      rules: [{
         test: styleSheetModule,
-        loader: cssExtract.extract(['css', 'elm-css-webpack']),
+        use: ExtractTextPlugin.extract({
+          use: ['css-loader', 'elm-css-webpack-loader'],
+        }),
       }, {
         test: /\.elm$/,
-        loaders: ['elm-webpack'],
+        loader: 'elm-webpack-loader',
         exclude: [/elm-stuff/, /node_modules/, styleSheetModule],
-      }]),
-    }),
-    plugins: baseConfig.plugins.concat([cssExtract]),
+      }],
+    },
+    plugins: [new ExtractTextPlugin('styles.css')],
   });
 }
 
