@@ -14,7 +14,7 @@ import Xpdl.Activity exposing (Activities, Activity)
 import Xpdl.Lane exposing (Lanes, Lane, LaneId)
 import Xpdl.Process exposing (Process)
 import Xpdl.State exposing (XPDLState, XPDL(..))
-import Xpdl.Transition exposing (Transitions, Transition)
+import Xpdl.Transition exposing (TransitionId, Transitions, Transition)
 
 
 type alias Position =
@@ -23,6 +23,14 @@ type alias Position =
 
 type alias LaneDimensions =
     { y : Int, height : Int, width : Int }
+
+
+type alias Segment =
+    { left : Float
+    , top : Float
+    , width : Float
+    , angle : Float
+    }
 
 
 minLaneHeight : Int
@@ -104,7 +112,7 @@ activitiesHtml dragInfo laneDims acts currentProcess =
         List.filterMap actHtml currentProcess.activities
 
 
-computeSegment : Float -> Float -> Float -> Float -> { left : Float, top : Float, width : Float, angle : Float }
+computeSegment : Float -> Float -> Float -> Float -> Segment
 computeSegment x1 y1 x2 y2 =
     let
         length =
@@ -122,9 +130,21 @@ computeSegment x1 y1 x2 y2 =
         { left = left, top = top, width = length, angle = angle }
 
 
-centerActivityPosition : Position -> Position
-centerActivityPosition pos =
-    { top = pos.top + activityHeight / 2, left = pos.left + activityWidth / 2 }
+segmentsHtml : List Segment -> Html State.Msg
+segmentsHtml segments =
+    let
+        styles seg =
+            style
+                [ ( "left", toString seg.left ++ "px" )
+                , ( "top", toString seg.top ++ "px" )
+                , ( "width", toString seg.width ++ "px" )
+                , ( "transform", "rotate(" ++ toString seg.angle ++ "deg)" )
+                ]
+
+        segmentHtml seg =
+            div [ styles seg ] []
+    in
+        div [] <| List.map segmentHtml segments
 
 
 transitionHtml :
@@ -135,26 +155,30 @@ transitionHtml :
     -> Maybe (Html State.Msg)
 transitionHtml dragInfo acts laneDims trans =
     let
-        point fn =
-            get (fn trans) acts
+        centerActivityPosition pos =
+            { top = pos.top + activityHeight / 2, left = pos.left + activityWidth / 2 }
+
+        centerActivityPositionFromActId actId =
+            get actId acts
                 |> Maybe.map (activityPosition dragInfo laneDims)
                 |> Maybe.map centerActivityPosition
 
-        maybePosition =
-            Maybe.map2
-                (\t f -> computeSegment f.left f.top t.left t.top)
-                (point .from)
-                (point .to)
+        anchorPostions =
+            List.map (\{ x, y } -> { left = toFloat x + leftOffset, top = toFloat y + topOffset }) trans.anchors
 
-        styles pos =
-            style
-                [ ( "left", toString pos.left ++ "px" )
-                , ( "top", toString pos.top ++ "px" )
-                , ( "width", toString pos.width ++ "px" )
-                , ( "transform", "rotate(" ++ toString pos.angle ++ "deg)" )
-                ]
+        listOfSegments : Position -> Position -> List Segment
+        listOfSegments fromActPos toActPos =
+            List.map2 (,) (fromActPos :: anchorPostions) (anchorPostions ++ [ toActPos ])
+                |> List.map (\( f, t ) -> computeSegment f.left f.top t.left t.top)
+
+        allSegments : Maybe (List Segment)
+        allSegments =
+            Maybe.map2
+                listOfSegments
+                (centerActivityPositionFromActId trans.from)
+                (centerActivityPositionFromActId trans.to)
     in
-        Maybe.map (\pos -> div [ styles pos ] []) maybePosition
+        Maybe.map segmentsHtml allSegments
 
 
 transistionsHtml : DragInfo -> Dict LaneId LaneDimensions -> XPDLState -> Process -> List (Html State.Msg)

@@ -13,10 +13,10 @@ module Visualizer.Styles
 import Css exposing (..)
 import Css.Elements exposing (..)
 import Css.Namespace exposing (..)
+import Loader.Styles exposing (loaderSize)
 import Styles.Constants exposing (..)
 import Styles.Grid exposing (columnMixin)
 import Styles.Namespace exposing (Namespace(Visualizer))
-import Loader.Styles exposing (loaderSize)
 
 
 type Class
@@ -115,10 +115,14 @@ css =
         , class Transitions
             [ children
                 [ div
-                    [ height (px transitionThickness)
-                    , backgroundColor highlightBackground
-                    , position absolute
-                    , property "z-index" "3"
+                    [ children
+                        [ div
+                            [ height (px transitionThickness)
+                            , backgroundColor highlightBackground
+                            , position absolute
+                            , property "z-index" "3"
+                            ]
+                        ]
                     ]
                 ]
             ]
