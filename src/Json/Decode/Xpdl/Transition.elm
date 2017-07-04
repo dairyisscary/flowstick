@@ -5,8 +5,12 @@ import Json.Decode.Maybe exposing (maybeWithDefault)
 import Json.Decode.Xml exposing (listOfOne)
 
 
+type alias Anchor =
+    { x : Int, y : Int }
+
+
 type alias Anchors =
-    List { x : Int, y : Int }
+    List Anchor
 
 
 type alias Transition =
@@ -26,6 +30,10 @@ type alias TransitionAttributes =
     }
 
 
+type alias GraphicInfos =
+    { anchors : Anchors }
+
+
 type alias Transitions =
     List Transition
 
@@ -34,38 +42,43 @@ type alias TransitionId =
     String
 
 
-anchorDecoder : Decoder (Maybe { x : Int, y : Int })
+anchorDecoder : Decoder (Maybe Anchor)
 anchorDecoder =
     let
-        convertCords : Maybe String -> Maybe Int
-        convertCords =
-            Maybe.andThen (String.toInt >> Result.toMaybe)
+        convertToInt =
+            String.toInt >> Result.toMaybe
 
-        makeAnchor : Maybe String -> Maybe String -> Maybe String -> Maybe { x : Int, y : Int }
-        makeAnchor style xStr yStr =
-            case style of
-                Just "NO_ROUTING_ORTHOGONAL" ->
-                    Maybe.map2 (\x y -> { x = x, y = y })
-                        (convertCords xStr)
-                        (convertCords yStr)
-
-                _ ->
-                    Nothing
-
-        cordinateDecoder : String -> Decoder (Maybe String)
-        cordinateDecoder propName =
-            maybe (index 0 (at [ "$", propName ] string))
+        makeAnchor maybeX maybeY =
+            Maybe.map2 Anchor
+                (Maybe.andThen convertToInt maybeX)
+                (Maybe.andThen convertToInt maybeY)
     in
-        map3 makeAnchor
-            (maybeWithDefault Nothing (field "$" (maybe (field "Style" string))))
-            (maybeWithDefault Nothing (field "xpdl:Coordinates" <| cordinateDecoder "XCoordinate"))
-            (maybeWithDefault Nothing (field "xpdl:Coordinates" <| cordinateDecoder "YCoordinate"))
+        map2 makeAnchor
+            (maybe (at [ "$", "XCoordinate" ] string))
+            (maybe (at [ "$", "YCoordinate" ] string))
 
 
 anchorsDecoder : Decoder Anchors
 anchorsDecoder =
-    map (List.filterMap identity)
-        (maybeWithDefault [] (field "xpdl:ConnectorGraphicsInfo" (list anchorDecoder)))
+    let
+        makeAnchors : Maybe String -> List (Maybe Anchor) -> Anchors
+        makeAnchors style anchors =
+            case style of
+                Just "NO_ROUTING_ORTHOGONAL" ->
+                    List.filterMap identity anchors
+
+                _ ->
+                    []
+    in
+        map2 makeAnchors
+            (maybeWithDefault Nothing (maybe (at [ "$", "Style" ] string)))
+            (maybeWithDefault [] (field "xpdl:Coordinates" (list anchorDecoder)))
+
+
+graphicInfosDecoder : Decoder GraphicInfos
+graphicInfosDecoder =
+    map (GraphicInfos << List.concatMap identity)
+        (maybeWithDefault [] (field "xpdl:ConnectorGraphicsInfo" (list anchorsDecoder)))
 
 
 transitionAttributesDecoder : Decoder TransitionAttributes
@@ -77,16 +90,16 @@ transitionAttributesDecoder =
         (field "From" string)
 
 
-makeTransitions : TransitionAttributes -> Anchors -> Transition
-makeTransitions { id, name, to, from } =
-    Transition id name to from
+makeTransitions : TransitionAttributes -> GraphicInfos -> Transition
+makeTransitions { id, name, to, from } { anchors } =
+    Transition id name to from anchors
 
 
 transitionDecoder : Decoder Transition
 transitionDecoder =
     map2 makeTransitions
         (field "$" transitionAttributesDecoder)
-        (maybeWithDefault [] (field "xpdl:ConnectorGraphicsInfos" (listOfOne anchorsDecoder)))
+        (maybeWithDefault { anchors = [] } (field "xpdl:ConnectorGraphicsInfos" (listOfOne graphicInfosDecoder)))
 
 
 transitionsDecoder : Decoder Transitions
