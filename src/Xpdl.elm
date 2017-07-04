@@ -11,7 +11,6 @@ import Xpdl.File as File
 import Xpdl.Lane exposing (LaneId, lanesFromJson)
 import Xpdl.Process exposing (processesFromJson)
 import Xpdl.State exposing (XPDL(..), XPDLState)
-import Xpdl.Transition exposing (transitionsFromJson)
 
 
 initialXPDL : XPDL
@@ -29,7 +28,6 @@ convertJsonToState jxpdl =
                 , lanes = lanesFromJson package
                 , currentProcess = Nothing
                 , activities = activitiesFromJson package
-                , transitions = transitionsFromJson package
                 }
 
         Err str ->

@@ -12,7 +12,6 @@ type alias XPDLState =
     , lanes : Lanes
     , activities : Activities
     , currentProcess : Maybe ProcessId
-    , transitions : Transitions
     }
 
 

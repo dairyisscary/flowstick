@@ -24,12 +24,6 @@ type alias Transition =
     }
 
 
-transitionFromJson : JTrans.Transition -> Transition
-transitionFromJson =
-    identity
-
-
-transitionsFromJson : Package -> Transitions
-transitionsFromJson package =
-    List.concatMap (.transitions) package.processes
-        |> createDict (.id) transitionFromJson
+transitionsFromJson : JTrans.Transitions -> Transitions
+transitionsFromJson =
+    createDict (.id) identity

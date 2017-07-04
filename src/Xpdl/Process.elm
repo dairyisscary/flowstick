@@ -7,7 +7,7 @@ import List.Extra exposing (find)
 import Xpdl.Activity exposing (ActivityId)
 import Xpdl.Extra exposing (createDict)
 import Xpdl.Lane exposing (Lanes, LaneId)
-import Xpdl.Transition exposing (TransitionId)
+import Xpdl.Transition exposing (Transitions, transitionsFromJson)
 
 
 type alias ProcessId =
@@ -19,7 +19,7 @@ type alias Process =
     , name : String
     , lanes : List LaneId
     , activities : List ActivityId
-    , transitions : List TransitionId
+    , transitions : Transitions
     }
 
 
@@ -45,7 +45,7 @@ processFromJson package xproc =
         , name = xproc.name
         , lanes = lanes
         , activities = pluckId xproc.activities
-        , transitions = pluckId xproc.transitions
+        , transitions = transitionsFromJson xproc.transitions
         }
 
 

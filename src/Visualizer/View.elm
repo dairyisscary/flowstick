@@ -183,14 +183,8 @@ transitionHtml dragInfo acts laneDims trans =
 
 transistionsHtml : DragInfo -> Dict LaneId LaneDimensions -> XPDLState -> Process -> List (Html State.Msg)
 transistionsHtml dragInfo laneDims state currentProcess =
-    let
-        htmlGen =
-            transitionHtml dragInfo state.activities laneDims
-
-        transHtml transId =
-            get transId state.transitions |> Maybe.andThen htmlGen
-    in
-        List.filterMap transHtml currentProcess.transitions
+    Dict.values currentProcess.transitions
+        |> List.filterMap (transitionHtml dragInfo state.activities laneDims)
 
 
 getLaneDimensionsWithDefault : LaneId -> Dict LaneId LaneDimensions -> LaneDimensions
