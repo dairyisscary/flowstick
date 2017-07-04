@@ -20,17 +20,25 @@ computeDiff start mousePos =
     )
 
 
+startDragging : Point -> ( DragInfo, Cmd msg )
+startDragging point =
+    ( Dragging
+        { start = point
+        , diffX = 0
+        , diffY = 0
+        }
+    , Cmd.none
+    )
+
+
 update : State.Msg -> DragInfo -> ( DragInfo, Cmd msg )
 update msg dragInfo =
     case msg of
+        SelectTransition _ _ _ point ->
+            startDragging point
+
         SelectActivity _ point ->
-            ( Dragging
-                { start = point
-                , diffX = 0
-                , diffY = 0
-                }
-            , Cmd.none
-            )
+            startDragging point
 
         StopDragging ->
             ( init, Cmd.none )
@@ -60,12 +68,12 @@ subscriptions dragInfo =
             Sub.none
 
 
-onMouseDownStartDragging : Bool -> ActivityId -> Attribute Msg
-onMouseDownStartDragging blockPropgation actId =
+onMouseDownStartDragging : Bool -> (Point -> Msg) -> Attribute Msg
+onMouseDownStartDragging blockPropgation f =
     onWithOptions
         "mousedown"
         { stopPropagation = blockPropgation, preventDefault = False }
-        (Json.map (SelectActivity actId) decodeMousePosition)
+        (Json.map f decodeMousePosition)
 
 
 decodeMousePosition : Decoder Point

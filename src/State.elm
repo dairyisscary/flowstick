@@ -5,6 +5,7 @@ import Xpdl.Activity exposing (ActivityId)
 import Xpdl.File as File
 import Xpdl.Process exposing (ProcessId)
 import Xpdl.State as XS
+import Xpdl.Transition exposing (TransitionId)
 
 
 type alias Point =
@@ -15,7 +16,8 @@ type Msg
     = JSONMsg JDX.Msg
     | FileMsg File.Msg
     | ChangeCurrentProcess ProcessId
-    | DeselectAllActivities
+    | DeselectAll
+    | SelectTransition ProcessId TransitionId (Maybe Int) Point
     | SelectActivity ActivityId Point
     | StopDragging
     | Move Point

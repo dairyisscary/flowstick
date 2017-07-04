@@ -15,15 +15,31 @@ type alias Transitions =
     Dict TransitionId Transition
 
 
+type alias Anchor =
+    { x : Int, y : Int, selected : Bool }
+
+
 type alias Transition =
     { id : TransitionId
     , name : Maybe String
     , to : ActivityId
     , from : ActivityId
-    , anchors : List { x : Int, y : Int }
+    , anchors : List Anchor
+    , selected : Bool
+    }
+
+
+transitionFromJson : JTrans.Transition -> Transition
+transitionFromJson { id, name, to, from, anchors } =
+    { id = id
+    , name = name
+    , to = to
+    , from = from
+    , anchors = List.map (\{ x, y } -> { x = x, y = y, selected = False }) anchors
+    , selected = False
     }
 
 
 transitionsFromJson : JTrans.Transitions -> Transitions
 transitionsFromJson =
-    createDict (.id) identity
+    createDict (.id) transitionFromJson

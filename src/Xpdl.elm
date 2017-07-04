@@ -4,13 +4,14 @@ import Dict exposing (update, get, map)
 import Drag exposing (draggingData)
 import Json.Decode.Xpdl as JDX
 import List.Extra exposing (find)
-import State exposing (Msg(..), Model, DragInfo(Dragging))
+import State exposing (Msg(..), Model, DragInfo)
 import Visualizer.View exposing (laneDimensions)
 import Xpdl.Activity exposing (Activity, ActivityId, activitiesFromJson)
 import Xpdl.File as File
 import Xpdl.Lane exposing (LaneId, lanesFromJson)
-import Xpdl.Process exposing (processesFromJson)
+import Xpdl.Process exposing (ProcessId, processesFromJson)
 import Xpdl.State exposing (XPDL(..), XPDLState)
+import Xpdl.Transition exposing (TransitionId)
 
 
 initialXPDL : XPDL
@@ -65,13 +66,22 @@ modifyAct fn id xpdl =
         modifyLoaded updateAct xpdl
 
 
-deselectAllActivites : XPDLState -> XPDLState
-deselectAllActivites state =
+deselectAll : XPDLState -> XPDLState
+deselectAll state =
     let
-        unselectedActs =
-            Dict.map (\_ a -> { a | selected = False }) state.activities
+        unselect x =
+            { x | selected = False }
+
+        unselectTransition _ trans =
+            unselect { trans | anchors = List.map unselect trans.anchors }
+
+        unselectedTransitions _ process =
+            { process | transitions = Dict.map unselectTransition process.transitions }
     in
-        { state | activities = unselectedActs }
+        { state
+            | activities = Dict.map (\_ act -> unselect act) state.activities
+            , processes = Dict.map unselectedTransitions state.processes
+        }
 
 
 computeNewLaneAndCords : List ( LaneId, Int ) -> DragInfo -> Activity -> Activity
@@ -131,8 +141,55 @@ addOffsets dragInfo state =
 
         movedActs =
             Dict.map moveAct state.activities
+
+        moveAnchors =
+            -- We _always_ turn off anchor selection on stop dragging
+            List.map
+                (\anchor ->
+                    if anchor.selected then
+                        { anchor
+                            | x = anchor.x + draggingData dragInfo .diffX 0 |> max 0
+                            , y = anchor.y + draggingData dragInfo .diffY 0 |> max 0
+                            , selected = False
+                        }
+                    else
+                        { anchor | selected = False }
+                )
+
+        moveSelectedAnchors =
+            Dict.map
+                (\_ transition ->
+                    if transition.selected then
+                        { transition | anchors = moveAnchors transition.anchors }
+                    else
+                        transition
+                )
+
+        movedProcessTransitions =
+            Dict.map (\_ proc -> { proc | transitions = moveSelectedAnchors proc.transitions }) state.processes
     in
-        { state | activities = movedActs }
+        { state | activities = movedActs, processes = movedProcessTransitions }
+
+
+selectTransitionAndAnchor : ProcessId -> TransitionId -> Maybe Int -> XPDLState -> XPDLState
+selectTransitionAndAnchor procId transId maybeAnchorIndex state =
+    let
+        selectAnchor index anchor =
+            if Just index == maybeAnchorIndex then
+                { anchor | selected = True }
+            else
+                anchor
+
+        turnOnSelection transition =
+            { transition
+                | selected = True
+                , anchors = List.indexedMap selectAnchor transition.anchors
+            }
+
+        selectTransitionInProc process =
+            { process | transitions = Dict.update transId (Maybe.map turnOnSelection) process.transitions }
+    in
+        { state | processes = Dict.update procId (Maybe.map selectTransitionInProc) state.processes }
 
 
 update : Msg -> Model -> ( XPDL, Cmd a )
@@ -149,13 +206,19 @@ update msg model =
                 selectOne =
                     modifyAct (\a -> { a | selected = True }) actId
             in
-                ( selectOne <| modifyLoaded deselectAllActivites model.xpdl, Cmd.none )
+                ( selectOne <| modifyLoaded deselectAll model.xpdl, Cmd.none )
+
+        SelectTransition procId transId maybeAnchorIndex _ ->
+            ( modifyLoaded deselectAll model.xpdl
+                |> modifyLoaded (selectTransitionAndAnchor procId transId maybeAnchorIndex)
+            , Cmd.none
+            )
 
         ChangeCurrentProcess newProcId ->
             ( modifyLoaded (\s -> { s | currentProcess = Just newProcId }) model.xpdl, Cmd.none )
 
-        DeselectAllActivities ->
-            ( modifyLoaded deselectAllActivites model.xpdl, Cmd.none )
+        DeselectAll ->
+            ( modifyLoaded deselectAll model.xpdl, Cmd.none )
 
         StopDragging ->
             ( modifyLoaded (addOffsets model.drag) model.xpdl, Cmd.none )

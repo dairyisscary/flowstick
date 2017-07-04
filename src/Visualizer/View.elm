@@ -13,7 +13,7 @@ import Styles.Namespace exposing (FlowstickNamespace)
 import Visualizer.Styles exposing (..)
 import Xpdl.Activity exposing (Activities, Activity)
 import Xpdl.Lane exposing (Lanes, Lane, LaneId)
-import Xpdl.Process exposing (Process)
+import Xpdl.Process exposing (Process, ProcessId)
 import Xpdl.State exposing (XPDLState, XPDL(..))
 import Xpdl.Transition exposing (TransitionId, Transitions, Transition)
 
@@ -90,7 +90,7 @@ activityHtml dragInfo laneDims act =
             ns.classList [ ( Selected, act.selected ) ]
 
         mouseDown =
-            onMouseDownStartDragging True act.id
+            onMouseDownStartDragging True (SelectActivity act.id)
 
         pos =
             activityPosition dragInfo laneDims act
@@ -142,14 +142,20 @@ segmentsHtml procId transId segments =
                 , ( "transform", "rotate(" ++ toString seg.angle ++ "deg)" )
                 ]
 
-        anchor =
-            div [] [ icon "radio_button_checked" XSmall ]
+        mouseDown anchorIndex =
+            onMouseDownStartDragging True (SelectTransition procId transId anchorIndex)
+
+        anchor anchorIndex =
+            div [ mouseDown <| Just (anchorIndex - 1) ] [ icon "radio_button_checked" XSmall ]
+
+        segmentMouseDown =
+            mouseDown Nothing
 
         segmentHtml index seg =
             if index == 0 then
-                div [ styles seg ] []
+                div [ styles seg, segmentMouseDown ] []
             else
-                div [ styles seg ] [ anchor ]
+                div [ styles seg, segmentMouseDown ] [ anchor index ]
     in
         List.indexedMap segmentHtml segments
 
@@ -181,9 +187,21 @@ transitionHtml procId dragInfo acts laneDims trans =
 
         anchorPostions =
             List.map
-                (\{ x, y } ->
-                    { left = toFloat x + leftOffset + draggingOffsets.x
-                    , top = toFloat y + topOffset + draggingOffsets.y
+                (\{ x, y, selected } ->
+                    { left =
+                        toFloat x
+                            + leftOffset
+                            + if selected then
+                                draggingOffsets.x
+                              else
+                                0
+                    , top =
+                        toFloat y
+                            + topOffset
+                            + if selected then
+                                draggingOffsets.y
+                              else
+                                0
                     }
                 )
                 trans.anchors
@@ -338,7 +356,7 @@ visualizer model =
             model.xpdl
 
         wrapper =
-            div [ ns.class [ Visualizer ], onMouseDown DeselectAllActivities ]
+            div [ ns.class [ Visualizer ], onMouseDown DeselectAll ]
     in
         case xpdl of
             ErrorLoad err ->
