@@ -16,6 +16,7 @@ import Css.Namespace exposing (..)
 import Loader.Styles exposing (loaderSize)
 import Styles.Constants exposing (..)
 import Styles.Grid exposing (columnMixin)
+import Styles.Icons exposing (xSmallIconWidth)
 import Styles.Namespace exposing (Namespace(Visualizer))
 
 
@@ -66,6 +67,11 @@ semiBoxForegroundOne =
     rgba boxForegroundOne.red boxForegroundOne.green boxForegroundOne.blue 0.5
 
 
+colorTransition : Mixin
+colorTransition =
+    property "transition" "color 0.1s ease-in-out, background-color 0.1s ease-in-out"
+
+
 css : Stylesheet
 css =
     (stylesheet << namespace namespaceId)
@@ -114,13 +120,42 @@ css =
             ]
         , class Transitions
             [ children
+                -- Transition itself:
                 [ div
-                    [ children
+                    [ withClass Selected
+                        [ property "z-index" "4"
+                        , children
+                            [ div
+                                [ backgroundColor boxForegroundOne
+                                ]
+                            ]
+                        ]
+
+                    -- Segments:
+                    , children
                         [ div
                             [ height (px transitionThickness)
                             , backgroundColor highlightBackground
+                            , cursor pointer
+                            , colorTransition
                             , position absolute
                             , property "z-index" "3"
+                            , children
+                                [ div
+                                    [ position relative
+                                    , children
+                                        -- Anchors:
+                                        [ i
+                                            [ colorTransition
+                                            , color highlightBackground
+                                            , cursor pointer
+                                            , position absolute
+                                            , top (px (xSmallIconWidth / -2))
+                                            , right (px (xSmallIconWidth / -2))
+                                            ]
+                                        ]
+                                    ]
+                                ]
                             ]
                         ]
                     ]
@@ -140,7 +175,7 @@ css =
                     , overflow hidden
                     , property "z-index" "3"
                     , padding (px 10)
-                    , property "transition" "color 0.1s ease-in-out, background-color 0.1s ease-in-out"
+                    , colorTransition
                     , withClass Selected
                         [ color (rgb 255 255 255)
                         , backgroundColor boxForegroundOne

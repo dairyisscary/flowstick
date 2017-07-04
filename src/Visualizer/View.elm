@@ -8,6 +8,7 @@ import Html.CssHelpers exposing (withNamespace)
 import Html.Events exposing (onMouseDown)
 import Loader.View exposing (loader)
 import State exposing (Msg(..), DragInfo(Dragging))
+import Styles.Icons exposing (IconSize(XSmall), icon)
 import Styles.Namespace exposing (FlowstickNamespace)
 import Visualizer.Styles exposing (..)
 import Xpdl.Activity exposing (Activities, Activity)
@@ -130,8 +131,8 @@ computeSegment x1 y1 x2 y2 =
         { left = left, top = top, width = length, angle = angle }
 
 
-segmentsHtml : List Segment -> Html State.Msg
-segmentsHtml segments =
+segmentsHtml : ProcessId -> TransitionId -> List Segment -> List (Html State.Msg)
+segmentsHtml procId transId segments =
     let
         styles seg =
             style
@@ -141,19 +142,26 @@ segmentsHtml segments =
                 , ( "transform", "rotate(" ++ toString seg.angle ++ "deg)" )
                 ]
 
-        segmentHtml seg =
-            div [ styles seg ] []
+        anchor =
+            div [] [ icon "radio_button_checked" XSmall ]
+
+        segmentHtml index seg =
+            if index == 0 then
+                div [ styles seg ] []
+            else
+                div [ styles seg ] [ anchor ]
     in
-        div [] <| List.map segmentHtml segments
+        List.indexedMap segmentHtml segments
 
 
 transitionHtml :
-    DragInfo
+    ProcessId
+    -> DragInfo
     -> Activities
     -> Dict LaneId LaneDimensions
     -> Transition
     -> Maybe (Html State.Msg)
-transitionHtml dragInfo acts laneDims trans =
+transitionHtml procId dragInfo acts laneDims trans =
     let
         centerActivityPosition pos =
             { top = pos.top + activityHeight / 2, left = pos.left + activityWidth / 2 }
@@ -163,8 +171,22 @@ transitionHtml dragInfo acts laneDims trans =
                 |> Maybe.map (activityPosition dragInfo laneDims)
                 |> Maybe.map centerActivityPosition
 
+        draggingOffsets =
+            if trans.selected then
+                { x = toFloat <| draggingData dragInfo .diffX 0
+                , y = toFloat <| draggingData dragInfo .diffY 0
+                }
+            else
+                { x = 0, y = 0 }
+
         anchorPostions =
-            List.map (\{ x, y } -> { left = toFloat x + leftOffset, top = toFloat y + topOffset }) trans.anchors
+            List.map
+                (\{ x, y } ->
+                    { left = toFloat x + leftOffset + draggingOffsets.x
+                    , top = toFloat y + topOffset + draggingOffsets.y
+                    }
+                )
+                trans.anchors
 
         listOfSegments : Position -> Position -> List Segment
         listOfSegments fromActPos toActPos =
@@ -177,14 +199,18 @@ transitionHtml dragInfo acts laneDims trans =
                 listOfSegments
                 (centerActivityPositionFromActId trans.from)
                 (centerActivityPositionFromActId trans.to)
+
+        wrapper segments =
+            segmentsHtml procId trans.id segments
+                |> div [ ns.classList [ ( Selected, trans.selected ) ] ]
     in
-        Maybe.map segmentsHtml allSegments
+        Maybe.map wrapper allSegments
 
 
 transistionsHtml : DragInfo -> Dict LaneId LaneDimensions -> XPDLState -> Process -> List (Html State.Msg)
 transistionsHtml dragInfo laneDims state currentProcess =
     Dict.values currentProcess.transitions
-        |> List.filterMap (transitionHtml dragInfo state.activities laneDims)
+        |> List.filterMap (transitionHtml currentProcess.id dragInfo state.activities laneDims)
 
 
 getLaneDimensionsWithDefault : LaneId -> Dict LaneId LaneDimensions -> LaneDimensions
